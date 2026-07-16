@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub SDLC · 演示合集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070a; --panel:#111820; --line:#1f2a37;
+  --green:#39d353; --cyan:#39c5ff; --amber:#f0b429;
+  --text:#c9d1d9; --text-hi:#f2f6fb; --dim:#5b6b7b;
+  --mono:'JetBrains Mono',monospace; --body:'Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{min-height:100vh;font-family:var(--body);color:var(--text);
+  background:
+    radial-gradient(1000px 620px at 85% -10%, rgba(57,197,255,.10), transparent 60%),
+    radial-gradient(820px 560px at -8% 110%, rgba(57,211,83,.10), transparent 55%),
+    var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:46px 46px;}
+.wrap{position:relative;width:100%;max-width:1080px;}
+.term{font-family:var(--mono);font-size:17px;color:var(--dim);margin-bottom:18px;letter-spacing:.06em;}
+.term .p{color:var(--green);} .term .c{color:var(--cyan);}
+h1{font-weight:900;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:var(--text-hi);margin-bottom:14px;}
+h1 .a{color:var(--green);}
+.sub{font-size:clamp(16px,2.4vw,22px);color:var(--dim);margin-bottom:44px;max-width:720px;line-height:1.5;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;}
+.card{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:32px 30px;transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease;}
+.card:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.4);}
+.card .tag{font-family:var(--mono);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);}
+.card h2{font-size:30px;font-weight:900;color:var(--text-hi);margin:14px 0 12px;line-height:1.12;}
+.card p{font-size:17px;color:var(--dim);line-height:1.55;}
+.card .go{margin-top:20px;font-family:var(--mono);font-size:15px;color:var(--cyan);}
+.card .go::after{content:" →";}
+.foot{margin-top:44px;font-family:var(--mono);font-size:14px;color:#37424f;letter-spacing:.08em;}
+.foot a{color:var(--dim);text-decoration:none;} .foot a:hover{color:var(--green);}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="term"><span class="p">$</span> gh <span class="c">pages</span> serve ./decks</div>
+    <h1>GitHub <span class="a">SDLC</span> 演示合集</h1>
+    <p class="sub">围绕 GitHub 端到端软件交付的两套技术演示——从 AI 驱动的 Agentic SDLC，到 Workflow / Ruleset / Agentic Workflow 的深度实践。</p>
+    <div class="grid">
+      <a class="card" href="./GitHub-Agentic-SDLC.html">
+        <div class="tag">Deck 01 · Agentic SDLC</div>
+        <h2>GitHub Agentic SDLC</h2>
+        <p>AI 驱动的端到端软件交付：从需求、编码、评审到发布的智能体全链路能力分析。</p>
+        <div class="go">打开演示</div>
+      </a>
+      <a class="card" href="./github-workflow-ruleset.html">
+        <div class="tag">Deck 02 · Workflow &amp; Ruleset</div>
+        <h2>GitHub Workflow 与 Ruleset</h2>
+        <p>Actions 工作流核心组件、Ruleset 分支治理、Bypass 审批与 Agentic Workflow 全面教程。</p>
+        <div class="go">打开演示</div>
+      </a>
+    </div>
+    <div class="foot">GitHub · SDLC &nbsp;·&nbsp; 使用键盘方向键 / 空格翻页 &nbsp;·&nbsp; 按 E 进入编辑模式</div>
+  </div>
+</body>
+</html>

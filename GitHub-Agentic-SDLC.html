@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Agentic SDLC — AI 驱动的端到端软件交付</title>
+
+<!-- === FONTS: JetBrains Mono (代码/英文) + Noto Sans SC (中文) === -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   THEME VARIABLES — GitHub Dark 终端风
+   修改这里即可整体换色
+   =========================================== */
+:root {
+    --stage-bg: #010409;
+    --slide-bg: #0D1117;
+    --card: #161B22;
+    --card2: #1C2330;
+    --border: #30363D;
+    --txt: #E6EDF3;
+    --mut: #9BA6B0;
+    --faint: #545D68;
+    --green: #3FB950;
+    --purple: #A371F7;
+    --blue: #58A6FF;
+    --orange: #F0883E;
+    --red: #F85149;
+    --font-mono: 'JetBrains Mono', 'Noto Sans SC', monospace;
+    --font-cn: 'Noto Sans SC', sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   (viewport-base.css 全量内容)
+   =========================================== */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important;
+        width: 1920px; height: 1080px; break-after: page; page-break-after: always;
+    }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+    .deck-controls { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* ===========================================
+   SLIDE BASE — 终端氛围背景
+   =========================================== */
+.slide {
+    font-family: var(--font-mono);
+    color: var(--txt);
+    background:
+        radial-gradient(1200px 600px at 78% -10%, rgba(63,185,80,.10), transparent 60%),
+        radial-gradient(900px 520px at -8% 112%, rgba(163,113,247,.09), transparent 60%),
+        var(--slide-bg);
+}
+/* 网格底纹 */
+.grid-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(48,54,61,.30) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(48,54,61,.30) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 78%);
+    mask-image: radial-gradient(ellipse at center, black 25%, transparent 78%);
+}
+
+/* ===========================================
+   REVEAL ANIMATIONS — 由 .visible 触发
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .6s var(--ease), transform .6s var(--ease);
+}
+.slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.slide.visible .d1 { transition-delay: .08s; }
+.slide.visible .d2 { transition-delay: .18s; }
+.slide.visible .d3 { transition-delay: .28s; }
+.slide.visible .d4 { transition-delay: .38s; }
+.slide.visible .d5 { transition-delay: .48s; }
+.slide.visible .d6 { transition-delay: .58s; }
+.slide.visible .d7 { transition-delay: .68s; }
+.slide.visible .d8 { transition-delay: .78s; }
+
+/* ===========================================
+   共用组件
+   =========================================== */
+/* 页头：终端提示符风格标题 */
+.head { position: absolute; left: 90px; top: 64px; right: 90px; }
+.head .prompt {
+    font-size: 22px; color: var(--faint); margin-bottom: 14px; letter-spacing: .02em;
+}
+.head .prompt .p { color: var(--green); }
+.head .prompt .c { color: var(--blue); }
+.head h2 {
+    font-family: var(--font-cn); font-weight: 900;
+    font-size: 60px; line-height: 1.1; color: var(--txt); letter-spacing: .01em;
+}
+.head h2 .en { font-family: var(--font-mono); font-weight: 800; }
+.head .sub {
+    margin-top: 14px; font-family: var(--font-cn);
+    font-size: 24px; color: var(--mut); font-weight: 400;
+}
+/* 页脚 */
+.foot {
+    position: absolute; left: 90px; right: 90px; bottom: 46px;
+    display: flex; justify-content: space-between;
+    font-size: 18px; color: var(--faint);
+    border-top: 1px solid rgba(48,54,61,.6); padding-top: 18px;
+}
+/* 卡片 */
+.card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    position: relative; overflow: hidden;
+}
+.card .bar { position: absolute; left: 0; top: 0; right: 0; height: 5px; }
+/* 彩色标签 chip */
+.chip {
+    display: inline-block; border: 1px solid var(--border); background: var(--slide-bg);
+    border-radius: 999px; padding: 8px 22px; font-size: 20px; color: var(--mut);
+}
+/* 高亮色 utility */
+.g { color: var(--green); } .pu { color: var(--purple); } .b { color: var(--blue); }
+.o { color: var(--orange); } .r { color: var(--red); } .m { color: var(--mut); }
+.cn { font-family: var(--font-cn); }
+
+/* ===========================================
+   SLIDE 1 — 封面（终端窗口）
+   =========================================== */
+.s1 .term {
+    position: absolute; left: 180px; top: 158px; width: 1560px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.5);
+}
+.s1 .tbar {
+    display: flex; align-items: center; gap: 11px;
+    padding: 24px 30px; border-bottom: 1px solid var(--border);
+}
+.s1 .dot { width: 18px; height: 18px; border-radius: 50%; }
+.s1 .tbar .t { margin-left: 18px; font-size: 20px; color: var(--mut); }
+.s1 .tbody { padding: 60px 74px 68px; }
+.s1 .cmdline { font-size: 26px; color: var(--mut); }
+.s1 h1 {
+    margin: 28px 0 10px; font-size: 110px; font-weight: 800;
+    line-height: 1.05; letter-spacing: -0.02em; color: var(--txt);
+}
+.s1 .subtitle {
+    font-family: var(--font-cn); font-size: 40px; font-weight: 700;
+    color: var(--purple); margin: 10px 0 40px;
+}
+.s1 .tags { display: flex; gap: 16px; flex-wrap: wrap; }
+.s1 .tag {
+    border: 1px solid var(--border); background: var(--slide-bg);
+    border-radius: 999px; padding: 13px 27px; font-size: 22px; color: var(--mut);
+}
+.s1 .tag b { color: var(--txt); font-weight: 500; }
+.s1 .cursor {
+    display: inline-block; width: 27px; height: 46px; background: var(--green);
+    vertical-align: -6px; margin-left: 6px; animation: blink 1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.s1 .bottom {
+    position: absolute; left: 180px; right: 180px; bottom: 66px;
+    display: flex; justify-content: space-between; font-size: 20px; color: var(--faint);
+}
+
+/* ===========================================
+   SLIDE 2 — 什么是 Agentic SDLC（三阶段演进）
+   =========================================== */
+.s2 .stages { position: absolute; left: 90px; top: 280px; display: flex; gap: 36px; }
+.s2 .stage { width: 546px; height: 330px; padding: 36px 40px; }
+.s2 .stage .lv { font-size: 21px; font-weight: 700; letter-spacing: .08em; margin-bottom: 16px; }
+.s2 .stage h3 { font-family: var(--font-cn); font-size: 40px; font-weight: 900; color: var(--txt); margin-bottom: 18px; }
+.s2 .stage p { font-family: var(--font-cn); font-size: 22px; line-height: 1.65; color: var(--mut); }
+.s2 .arrow {
+    position: absolute; top: 425px; font-size: 40px; font-weight: 800; color: var(--green);
+}
+.s2 .def {
+    position: absolute; left: 90px; top: 680px; width: 1740px;
+    border: 1px solid var(--green); border-radius: 14px; background: var(--card2);
+    padding: 34px 44px; font-family: var(--font-cn); font-size: 26px; line-height: 1.7; color: var(--txt);
+}
+.s2 .pts { position: absolute; left: 90px; top: 862px; display: flex; gap: 36px; }
+.s2 .pt { width: 546px; }
+.s2 .pt b { font-family: var(--font-cn); font-size: 23px; color: var(--txt); display: block; margin-bottom: 8px; }
+.s2 .pt span { font-family: var(--font-cn); font-size: 19px; color: var(--mut); line-height: 1.5; display: block; }
+
+/* ===========================================
+   SLIDE 3 — SDLC 覆盖全景（4×2 网格）
+   =========================================== */
+.s3 .cells { position: absolute; left: 90px; top: 275px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; width: 1740px; }
+.s3 .cell { height: 305px; padding: 30px 32px; }
+.s3 .cell .ic { font-size: 42px; margin-bottom: 14px; display: block; }
+.s3 .cell h3 { font-family: var(--font-cn); font-size: 29px; font-weight: 900; color: var(--txt); margin-bottom: 14px; }
+.s3 .cell p { font-family: var(--font-cn); font-size: 19.5px; line-height: 1.55; color: var(--mut); min-height: 92px; }
+.s3 .cell .stars { font-size: 24px; letter-spacing: .12em; }
+
+/* ===========================================
+   SLIDE 4 — 端到端流程（pipeline）
+   =========================================== */
+.s4 .pipe { position: absolute; left: 90px; top: 295px; display: flex; align-items: stretch; }
+.s4 .node { width: 262px; height: 300px; padding: 26px 22px; text-align: center; }
+.s4 .node .emoji { font-size: 52px; display: block; margin: 8px 0 16px; }
+.s4 .node h3 { font-size: 25px; font-weight: 700; color: var(--txt); margin-bottom: 12px; font-family: var(--font-cn); }
+.s4 .node p { font-family: var(--font-cn); font-size: 19px; color: var(--mut); line-height: 1.5; }
+.s4 .link { display: flex; align-items: center; justify-content: center; width: 33px; font-size: 26px; color: var(--green); font-weight: 800; }
+.s4 .human { border-color: var(--blue) !important; background: var(--card2) !important; }
+.s4 .loop {
+    position: absolute; left: 260px; top: 650px; width: 1400px; text-align: center;
+    border-top: 2px dashed var(--purple); padding-top: 16px;
+    font-family: var(--font-cn); font-size: 22px; color: var(--purple);
+}
+.s4 .two {
+    position: absolute; left: 90px; top: 780px; width: 1740px;
+    border: 1px solid var(--green); border-radius: 14px; background: var(--card2);
+    padding: 34px 46px;
+}
+.s4 .two h3 { font-family: var(--font-cn); font-size: 30px; font-weight: 900; color: var(--green); margin-bottom: 14px; }
+.s4 .two p { font-family: var(--font-cn); font-size: 25px; color: var(--txt); line-height: 1.6; }
+
+/* ===========================================
+   SLIDE 5 — 五大能力总览
+   =========================================== */
+.s5 .caps { position: absolute; left: 90px; top: 285px; display: flex; gap: 24px; }
+.s5 .cap { width: 328.8px; height: 470px; padding: 36px 26px; text-align: center; }
+.s5 .cap .ic {
+    width: 92px; height: 92px; border-radius: 50%; background: var(--card2);
+    display: flex; align-items: center; justify-content: center; font-size: 44px; margin: 0 auto 22px;
+}
+.s5 .cap h3 { font-size: 26px; font-weight: 700; color: var(--txt); min-height: 76px; display:flex; align-items:center; justify-content:center; }
+.s5 .cap .role {
+    display: inline-block; border: 1px solid; border-radius: 999px;
+    padding: 8px 24px; font-family: var(--font-cn); font-size: 20px; font-weight: 700; margin: 12px 0 20px;
+}
+.s5 .cap p { font-family: var(--font-cn); font-size: 19.5px; color: var(--mut); line-height: 1.6; }
+.s5 .next {
+    position: absolute; left: 0; right: 0; top: 810px; text-align: center;
+    font-family: var(--font-cn); font-size: 24px; color: #C6CDD5; font-style: italic;
+}
+
+/* ===========================================
+   SLIDES 6-8 — 能力详解版式（左"是什么" + 右 2×2）
+   =========================================== */
+.detail .whatis { position: absolute; left: 90px; top: 275px; width: 560px; height: 520px; padding: 36px 40px; }
+.detail .whatis h3 { font-family: var(--font-cn); font-size: 27px; font-weight: 900; margin-bottom: 20px; }
+.detail .whatis p { font-family: var(--font-cn); font-size: 21.5px; line-height: 1.75; color: var(--txt); }
+.detail .pgrid { position: absolute; left: 692px; top: 275px; width: 1138px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.detail .pcell { height: 248px; padding: 28px 32px; background: var(--card2); }
+.detail .pcell h4 { font-family: var(--font-cn); font-size: 24px; font-weight: 700; color: var(--txt); margin-bottom: 14px; }
+.detail .pcell p { font-family: var(--font-cn); font-size: 20px; line-height: 1.6; color: var(--mut); }
+.detail .bottom {
+    position: absolute; left: 90px; top: 850px; width: 1740px;
+    border-radius: 14px; background: var(--card); border: 1px solid var(--border);
+    padding: 28px 44px; font-family: var(--font-cn); font-size: 23px; line-height: 1.6; color: var(--txt);
+}
+.detail .bottom b { font-weight: 900; }
+
+/* ===========================================
+   SLIDE 9 — Agent Merge（左卡 + 对比表）
+   =========================================== */
+.s9 .whatis { position: absolute; left: 90px; top: 275px; width: 560px; height: 520px; padding: 36px 40px; }
+.s9 .whatis h3 { font-family: var(--font-cn); font-size: 27px; font-weight: 900; color: var(--green); margin-bottom: 20px; }
+.s9 .whatis p { font-family: var(--font-cn); font-size: 21.5px; line-height: 1.75; color: var(--txt); }
+.s9 .tbl { position: absolute; left: 692px; top: 275px; width: 1138px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.s9 .row { display: grid; grid-template-columns: 1.1fr 1.2fr 1.35fr; }
+.s9 .cellt {
+    padding: 24px 28px; font-family: var(--font-cn); font-size: 22px;
+    border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+    background: var(--card); display: flex; align-items: center;
+}
+.s9 .row:last-child .cellt { border-bottom: none; }
+.s9 .cellt:last-child { border-right: none; }
+.s9 .hd { background: var(--card2); font-weight: 900; color: var(--txt); }
+.s9 .no { color: var(--mut); }
+.s9 .yes { color: var(--green); font-weight: 700; }
+.s9 .bottom {
+    position: absolute; left: 90px; top: 850px; width: 1740px;
+    border-radius: 14px; background: var(--card); border: 1px solid var(--green);
+    padding: 28px 44px; font-family: var(--font-cn); font-size: 23px; line-height: 1.6; color: var(--txt);
+}
+
+/* ===========================================
+   SLIDE 10 — Autofix（流程 + 覆盖 + 大数字）
+   =========================================== */
+.s10 .flow { position: absolute; left: 90px; top: 268px; display: flex; align-items: stretch; }
+.s10 .fnode { width: 390px; height: 215px; padding: 28px 30px; text-align: center; }
+.s10 .fnode h3 { font-size: 26px; font-weight: 700; color: var(--txt); margin: 10px 0 12px; font-family: var(--font-cn); }
+.s10 .fnode p { font-family: var(--font-cn); font-size: 20px; color: var(--mut); line-height: 1.5; }
+.s10 .flink { display: flex; align-items: center; justify-content: center; width: 60px; font-size: 30px; color: var(--green); font-weight: 800; }
+.s10 .key {
+    position: absolute; left: 90px; top: 525px; width: 1740px; text-align: center;
+    font-family: var(--font-cn); font-size: 23px; color: #C9B3F5;
+}
+.s10 .covs { position: absolute; left: 90px; top: 610px; display: flex; gap: 24px; }
+.s10 .cov { width: 442px; height: 250px; padding: 30px 32px; background: var(--card2); }
+.s10 .cov h4 { font-family: var(--font-cn); font-size: 24px; font-weight: 700; color: var(--txt); margin-bottom: 14px; }
+.s10 .cov p { font-family: var(--font-cn); font-size: 20px; line-height: 1.6; color: var(--mut); }
+.s10 .stat {
+    width: 342px; height: 250px; border: 2px solid var(--green) !important;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.s10 .stat .big { font-size: 96px; font-weight: 800; color: var(--green); line-height: 1; }
+.s10 .stat p { font-family: var(--font-cn); font-size: 19px; color: var(--mut); text-align: center; margin-top: 14px; line-height: 1.5; }
+
+/* ===========================================
+   SLIDE 11 — 治理（左卡列表 + 右表）
+   =========================================== */
+.s11 .lcards { position: absolute; left: 90px; top: 275px; width: 850px; display: flex; flex-direction: column; gap: 22px; }
+.s11 .lc { padding: 24px 34px; }
+.s11 .lc h4 { font-size: 24px; font-weight: 700; color: var(--txt); margin-bottom: 8px; font-family: var(--font-cn); }
+.s11 .lc p { font-family: var(--font-cn); font-size: 20px; color: var(--mut); line-height: 1.5; }
+.s11 .tbl { position: absolute; left: 1000px; top: 275px; width: 830px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.s11 .row { display: grid; grid-template-columns: .7fr 1.15fr 1.15fr; }
+.s11 .cellt {
+    padding: 20px 24px; font-family: var(--font-cn); font-size: 21px;
+    border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+    background: var(--card); display: flex; align-items: center;
+}
+.s11 .row:last-child .cellt { border-bottom: none; }
+.s11 .cellt:last-child { border-right: none; }
+.s11 .hd { background: var(--card2); font-weight: 900; color: var(--txt); }
+
+/* ===========================================
+   SLIDE 12 — 演示项目：端到端交付实战
+   =========================================== */
+.sdemo .proj {
+    position: absolute; left: 90px; top: 258px; width: 1110px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 10px 36px 12px;
+}
+.sdemo .step {
+    display: grid; grid-template-columns: 92px 200px 1fr; gap: 20px; align-items: center;
+    padding: 15.5px 0; border-bottom: 1px dashed rgba(48,54,61,.55);
+}
+.sdemo .step:last-child { border-bottom: none; }
+.sdemo .t { font-size: 19px; color: var(--faint); }
+.sdemo .who {
+    font-family: var(--font-cn); font-size: 18px; font-weight: 700;
+    border: 1px solid; border-radius: 999px; padding: 5px 0; text-align: center;
+}
+.sdemo .desc { font-family: var(--font-cn); font-size: 20px; color: var(--txt); line-height: 1.45; }
+.sdemo .desc .m2 { color: var(--mut); }
+.sdemo .desc code {
+    font-family: var(--font-mono); font-size: 17.5px; color: var(--blue);
+    background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 1px 8px;
+}
+.sdemo .stats { position: absolute; left: 1260px; top: 258px; width: 570px; display: flex; flex-direction: column; gap: 20px; }
+.sdemo .stat {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 32px; display: flex; align-items: center; gap: 26px;
+}
+.sdemo .stat .big { font-size: 54px; font-weight: 800; line-height: 1; min-width: 168px; }
+.sdemo .stat .lbl { font-family: var(--font-cn); font-size: 19.5px; color: var(--mut); line-height: 1.5; }
+.sdemo .stat .lbl b { color: var(--txt); font-weight: 700; }
+.sdemo .concl {
+    background: var(--card2); border: 1px solid var(--green); border-radius: 14px;
+    padding: 24px 32px; font-family: var(--font-cn); font-size: 21px; line-height: 1.65; color: var(--txt);
+}
+
+/* ===========================================
+   SLIDE arch — 系统架构：五层设计
+   =========================================== */
+.sarch .layers { position: absolute; left: 90px; top: 258px; width: 1740px; display: flex; flex-direction: column; gap: 15px; }
+.sarch .layer {
+    display: grid; grid-template-columns: 320px 1fr; align-items: center; gap: 30px;
+    border: 1px solid var(--border); border-radius: 14px; background: var(--card);
+    padding: 18px 34px; min-height: 96px; position: relative; overflow: hidden;
+}
+.sarch .layer .lbar { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
+.sarch .lname h3 { font-family: var(--font-cn); font-size: 27px; font-weight: 900; color: var(--txt); }
+.sarch .lname .en { font-size: 16px; color: var(--faint); letter-spacing: .08em; }
+.sarch .lright { display: flex; flex-direction: column; gap: 8px; }
+.sarch .chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.sarch .chipx {
+    border: 1px solid var(--border); background: var(--slide-bg); border-radius: 999px;
+    padding: 4px 16px; font-size: 17px; color: var(--txt);
+}
+.sarch .ldesc { font-family: var(--font-cn); font-size: 18px; color: var(--mut); }
+
+/* ===========================================
+   SLIDE proto — 以 PR 为中心的状态机
+   =========================================== */
+.sproto .prims { position: absolute; left: 90px; top: 262px; width: 520px; display: flex; flex-direction: column; gap: 20px; }
+.sproto .prim { padding: 22px 30px; }
+.sproto .prim h4 { font-size: 24px; font-weight: 700; color: var(--txt); margin-bottom: 8px; }
+.sproto .prim h4 .cn { font-size: 20px; color: var(--mut); font-weight: 400; margin-left: 10px; }
+.sproto .prim p { font-family: var(--font-cn); font-size: 19px; color: var(--mut); line-height: 1.5; }
+.sproto .machine {
+    position: absolute; left: 660px; top: 262px; width: 1170px; height: 430px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 40px 44px;
+}
+.sproto .machine .mtitle { font-family: var(--font-cn); font-size: 21px; color: var(--mut); margin-bottom: 44px; }
+.sproto .states { display: flex; align-items: center; justify-content: space-between; }
+.sproto .st {
+    border: 2px solid var(--border); background: var(--card2); border-radius: 12px;
+    padding: 18px 10px; width: 176px; text-align: center;
+}
+.sproto .st .nm { font-size: 21px; font-weight: 700; color: var(--txt); }
+.sproto .st .by { font-family: var(--font-cn); font-size: 16.5px; color: var(--mut); margin-top: 6px; }
+.sproto .sar { font-size: 24px; color: var(--green); font-weight: 800; }
+.sproto .backflow {
+    margin-top: 52px; border-top: 2px dashed var(--purple); padding-top: 14px; text-align: center;
+    font-family: var(--font-cn); font-size: 19.5px; color: var(--purple);
+}
+.sproto .bottom {
+    position: absolute; left: 90px; top: 742px; width: 1740px;
+    border: 1px solid var(--green); border-radius: 14px; background: var(--card2);
+    padding: 28px 44px; font-family: var(--font-cn); font-size: 22px; line-height: 1.7; color: var(--txt);
+}
+
+/* ===========================================
+   SLIDE hq — 编排层 Agent HQ
+   =========================================== */
+.shq .term2 {
+    position: absolute; left: 90px; top: 262px; width: 880px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.4); overflow: hidden;
+}
+.shq .tbar2 { display: flex; align-items: center; gap: 9px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+.shq .dot2 { width: 13px; height: 13px; border-radius: 50%; }
+.shq .tbar2 .t { margin-left: 12px; font-size: 16px; color: var(--mut); }
+.shq .tbody2 { padding: 26px 32px; font-size: 19px; line-height: 2.05; }
+.shq .tbody2 .cmd { color: var(--mut); }
+.shq .tbody2 .cmd .p { color: var(--green); }
+.shq .hqcards { position: absolute; left: 1030px; top: 262px; width: 800px; display: flex; flex-direction: column; gap: 18px; }
+.shq .hqc { padding: 22px 32px; }
+.shq .hqc h4 { font-family: var(--font-cn); font-size: 23px; font-weight: 700; color: var(--txt); margin-bottom: 7px; }
+.shq .hqc p { font-family: var(--font-cn); font-size: 19px; color: var(--mut); line-height: 1.5; }
+
+/* ===========================================
+   SLIDE ctx — 上下文工程
+   =========================================== */
+.sctx .cgrid { position: absolute; left: 90px; top: 268px; width: 1740px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.sctx .ccell { padding: 30px 38px; min-height: 252px; background: var(--card2); }
+.sctx .ccell h4 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.sctx .ccell .role { font-family: var(--font-cn); font-size: 18.5px; color: var(--faint); margin-bottom: 14px; }
+.sctx .ccell p { font-family: var(--font-cn); font-size: 20.5px; color: var(--mut); line-height: 1.6; }
+.sctx .bottom {
+    position: absolute; left: 90px; top: 852px; width: 1740px;
+    border: 1px solid var(--purple); border-radius: 14px; background: var(--card);
+    padding: 26px 44px; font-family: var(--font-cn); font-size: 22.5px; line-height: 1.6; color: var(--txt);
+}
+
+/* ===========================================
+   SLIDE metrics — 度量体系
+   =========================================== */
+.smet .cols { position: absolute; left: 90px; top: 262px; width: 1740px; display: flex; gap: 26px; }
+.smet .mcol { flex: 1; padding: 32px 36px; }
+.smet .mcol .mtag { font-size: 19px; font-weight: 700; letter-spacing: .07em; margin-bottom: 12px; }
+.smet .mcol h3 { font-family: var(--font-cn); font-size: 29px; font-weight: 900; color: var(--txt); margin-bottom: 22px; }
+.smet .mcol ul { list-style: none; }
+.smet .mcol li {
+    font-family: var(--font-cn); font-size: 20.5px; color: var(--txt); line-height: 1.45;
+    padding: 12px 0 12px 30px; position: relative; border-bottom: 1px dashed rgba(48,54,61,.5);
+}
+.smet .mcol li:last-child { border-bottom: none; }
+.smet .mcol li::before { content: '▸'; position: absolute; left: 0; }
+.smet .mcol li span { display: block; font-size: 17px; color: var(--mut); margin-top: 3px; }
+.smet .g1 li::before { color: var(--blue); }
+.smet .g2 li::before { color: var(--purple); }
+.smet .g3 li::before { color: var(--green); }
+.smet .bottom {
+    position: absolute; left: 90px; top: 848px; width: 1740px;
+    border: 1px solid var(--green); border-radius: 14px; background: var(--card2);
+    padding: 26px 44px; font-family: var(--font-cn); font-size: 22.5px; line-height: 1.6; color: var(--txt);
+}
+
+/* ===========================================
+   SLIDE principles — 设计原则
+   =========================================== */
+.sprin .pgrid2 { position: absolute; left: 90px; top: 268px; width: 1740px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.sprin .pc { padding: 32px 36px; min-height: 280px; }
+.sprin .pc .num { font-size: 40px; font-weight: 800; margin-bottom: 14px; display: block; }
+.sprin .pc h3 { font-family: var(--font-cn); font-size: 27px; font-weight: 900; color: var(--txt); margin-bottom: 14px; line-height: 1.3; }
+.sprin .pc p { font-family: var(--font-cn); font-size: 20px; color: var(--mut); line-height: 1.6; }
+.sprin .tail {
+    position: absolute; left: 0; right: 0; top: 902px; text-align: center;
+    font-family: var(--font-cn); font-size: 23px; color: #C6CDD5;
+}
+
+/* ===========================================
+   SLIDE 13 — 落地路线与总结
+   =========================================== */
+.s12 .phases { position: absolute; left: 90px; top: 280px; display: flex; gap: 32px; }
+.s12 .ph { width: 558.7px; height: 385px; padding: 36px 40px; }
+.s12 .ph .tag { font-size: 21px; font-weight: 700; letter-spacing: .06em; margin-bottom: 16px; }
+.s12 .ph h3 { font-family: var(--font-cn); font-size: 31px; font-weight: 900; color: var(--txt); line-height: 1.35; margin-bottom: 20px; min-height: 84px; }
+.s12 .ph p { font-family: var(--font-cn); font-size: 21px; line-height: 1.7; color: var(--mut); }
+.s12 .final {
+    position: absolute; left: 90px; top: 730px; width: 1740px;
+    border: 2px solid var(--green); border-radius: 16px; background: var(--card2);
+    padding: 42px 52px;
+}
+.s12 .final h3 { font-family: var(--font-cn); font-size: 36px; font-weight: 900; color: var(--green); margin-bottom: 16px; }
+.s12 .final p { font-family: var(--font-cn); font-size: 25px; line-height: 1.65; color: var(--txt); }
+
+/* ===========================================
+   DECK CONTROLS — 页码指示（舞台之外）
+   =========================================== */
+.deck-controls {
+    font-family: var(--font-mono); font-size: 14px; color: #6E7681;
+    background: rgba(22,27,34,.85); border: 1px solid #30363D;
+    border-radius: 999px; padding: 8px 20px; user-select: none;
+    backdrop-filter: blur(6px);
+}
+
+/* ===========================================
+   INLINE EDITING
+   =========================================== */
+.edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 10000; cursor: pointer; }
+.edit-toggle {
+    position: fixed; top: 18px; left: 18px; z-index: 10001;
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--border); color: var(--txt);
+    font-size: 20px; cursor: pointer;
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+}
+.edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+.edit-toggle.active { border-color: var(--green); box-shadow: 0 0 0 3px rgba(63,185,80,.3); }
+body.editing [contenteditable="true"] { outline: 1px dashed rgba(88,166,255,.6); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ============ SLIDE 1: 封面 ============ -->
+<section class="slide s1 active visible">
+    <div class="grid-bg"></div>
+    <div class="term reveal">
+        <div class="tbar">
+            <span class="dot" style="background:#F85149"></span>
+            <span class="dot" style="background:#F0883E"></span>
+            <span class="dot" style="background:#3FB950"></span>
+            <span class="t">github — agentic-sdlc — zsh</span>
+        </div>
+        <div class="tbody">
+            <div class="cmdline"><span class="g">➜</span> <span class="b">~/github</span> $ copilot deliver --from issue --to merge</div>
+            <h1 class="reveal d2">GitHub <span class="g">Agentic</span> SDLC<span class="cursor"></span></h1>
+            <div class="subtitle reveal d3">AI 驱动的端到端软件交付</div>
+            <div class="tags reveal d4">
+                <span class="tag"><b>issue-ai</b> <span class="cn">需求入口</span></span>
+                <span class="tag"><b>coding-agent</b> <span class="cn">自主编码</span></span>
+                <span class="tag"><b>code-review</b> <span class="cn">AI 初审</span></span>
+                <span class="tag"><b>agent-merge</b> <span class="cn">自动合并</span></span>
+                <span class="tag"><b>autofix</b> <span class="cn">安全修复</span></span>
+            </div>
+        </div>
+    </div>
+    <div class="bottom reveal d5">
+        <span>github.com/features/ai</span>
+        <span class="cn">2026 · 技术分享</span>
+        <span class="pnum"></span>
+    </div>
+</section>
+
+<!-- ============ SLIDE 2: 什么是 Agentic SDLC ============ -->
+<section class="slide s2">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ cat concept.md</div>
+        <h2>什么是 <span class="en">Agentic SDLC</span> ？</h2>
+        <div class="sub">AI 的角色演进：从「补全代码」到「交付软件」</div>
+    </div>
+    <div class="stages">
+        <div class="card stage reveal d1"><div class="bar" style="background:var(--faint)"></div>
+            <div class="lv m">01 / AUTOCOMPLETE</div>
+            <h3>AI 辅助编码</h3>
+            <p>代码补全、Chat 问答。<br>人写代码，AI 提建议 —— 效率工具，不改变工作流。</p>
+        </div>
+        <div class="card stage reveal d2"><div class="bar" style="background:var(--blue)"></div>
+            <div class="lv b">02 / ASSISTANT</div>
+            <h3>AI 协作编码</h3>
+            <p>Agent Mode 多文件编辑、运行命令、自我迭代。<br>人主导，AI 同步结对。</p>
+        </div>
+        <div class="card stage reveal d3"><div class="bar" style="background:var(--green)"></div>
+            <div class="lv g">03 / AGENT</div>
+            <h3>AI 自主交付</h3>
+            <p>委托任务 → 云端自主完成 → 产出 PR。<br>人委托与把关，AI 执行。</p>
+        </div>
+    </div>
+    <div class="arrow reveal d2" style="left:646px">→</div>
+    <div class="arrow reveal d3" style="left:1228px">→</div>
+    <div class="def reveal d4">
+        <b class="g">定义：</b>Agentic SDLC = 在软件开发生命周期的每个环节，由<b class="pu">自主智能体（Agent）</b>承担执行工作，
+        人类专注于定义问题与质量把关，且全程受平台治理（门禁、审计）约束。
+    </div>
+    <div class="pts">
+        <div class="pt reveal d5"><b>✦ 平台一体化</b><span>Issue、PR、CI、安全同平台，AI 上下文不断链</span></div>
+        <div class="pt reveal d6"><b>✦ 同步 + 异步双模式</b><span>IDE 结对（Agent Mode）＋ 云端委托（Coding Agent）</span></div>
+        <div class="pt reveal d7"><b>✦ 治理内建</b><span>Branch Protection、人工 Approve、完整审计日志</span></div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 3: SDLC 覆盖全景 ============ -->
+<section class="slide s3">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh ai coverage --all-stages</div>
+        <h2>SDLC 全阶段 <span class="en">AI</span> 覆盖全景</h2>
+        <div class="sub">八大阶段均有 AI 能力落位 —— 编码 / 评审 / 安全最成熟</div>
+    </div>
+    <div class="cells">
+        <div class="card cell reveal d1"><div class="bar" style="background:var(--blue)"></div>
+            <span class="ic">📋</span><h3>规划 / 需求</h3>
+            <p>Issue AI · 子任务拆解 · Copilot Spaces 组织知识问答</p>
+            <div class="stars b">★★★</div></div>
+        <div class="card cell reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <span class="ic">🎨</span><h3>设计 / 原型</h3>
+            <p>GitHub Spark 自然语言生成应用 · 架构方案讨论</p>
+            <div class="stars pu">★★★</div></div>
+        <div class="card cell reveal d3"><div class="bar" style="background:var(--green)"></div>
+            <span class="ic">💻</span><h3>编码</h3>
+            <p>补全 · Chat · Agent Mode · Coding Agent · MCP 扩展</p>
+            <div class="stars g">★★★★★</div></div>
+        <div class="card cell reveal d4"><div class="bar" style="background:var(--orange)"></div>
+            <span class="ic">🔍</span><h3>代码评审</h3>
+            <p>Code Review Agent 初审 · PR 摘要 · 评审修复闭环</p>
+            <div class="stars o">★★★★</div></div>
+        <div class="card cell reveal d5"><div class="bar" style="background:var(--blue)"></div>
+            <span class="ic">🧪</span><h3>测试 / CI</h3>
+            <p>测试生成 · Actions 工作流编写 · CI 失败诊断</p>
+            <div class="stars b">★★★★</div></div>
+        <div class="card cell reveal d6"><div class="bar" style="background:var(--red)"></div>
+            <span class="ic">🛡️</span><h3>安全</h3>
+            <p>CodeQL · Copilot Autofix · Dependabot · Secret Scanning</p>
+            <div class="stars r">★★★★</div></div>
+        <div class="card cell reveal d7"><div class="bar" style="background:var(--orange)"></div>
+            <span class="ic">🚀</span><h3>部署 / 发布</h3>
+            <p>CD 工作流生成 · IaC（Terraform/K8s）辅助编写</p>
+            <div class="stars o">★★★</div></div>
+        <div class="card cell reveal d8"><div class="bar" style="background:var(--faint)"></div>
+            <span class="ic">🔧</span><h3>运维 / 维护</h3>
+            <p>Bug 委托修复 · 技术债治理 · 依赖升级自动化</p>
+            <div class="stars m">★★★★</div></div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 4: 端到端流程 ============ -->
+<section class="slide s4">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh workflow view e2e-delivery</div>
+        <h2>端到端 <span class="en">AI</span> 交付流程</h2>
+        <div class="sub">从需求到合并，人只出现在两个节点</div>
+    </div>
+    <div class="pipe">
+        <div class="card node reveal d1"><div class="bar" style="background:var(--blue)"></div>
+            <span class="emoji">📋</span><h3>Issue AI</h3><p>结构化任务定义</p></div>
+        <div class="link reveal d1">→</div>
+        <div class="card node reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <span class="emoji">🤖</span><h3>Coding Agent</h3><p>沙箱编码 + 自测</p></div>
+        <div class="link reveal d2">→</div>
+        <div class="card node reveal d3"><div class="bar" style="background:var(--red)"></div>
+            <span class="emoji">🛡️</span><h3>CI + Autofix</h3><p>扫描即修复</p></div>
+        <div class="link reveal d3">→</div>
+        <div class="card node reveal d4"><div class="bar" style="background:var(--orange)"></div>
+            <span class="emoji">🔍</span><h3>Review Agent</h3><p>AI 初审 + 自动改</p></div>
+        <div class="link reveal d4">→</div>
+        <div class="card node human reveal d5"><div class="bar" style="background:var(--blue)"></div>
+            <span class="emoji">👤</span><h3>人工终审</h3><p>Approve 把关</p></div>
+        <div class="link reveal d5">→</div>
+        <div class="card node reveal d6"><div class="bar" style="background:var(--green)"></div>
+            <span class="emoji">🔀</span><h3>Agent Merge</h3><p>清障 + 自动合并</p></div>
+    </div>
+    <div class="loop reveal d6">↻ 评审意见 / 冲突 / CI 失败 → 自动回流给 Coding Agent 迭代修复</div>
+    <div class="two reveal d7">
+        <h3>人只做两件事</h3>
+        <p>① <b>定义问题</b>：写清楚 Issue 与验收标准　　② <b>质量把关</b>：终审 Approve 与门禁规则设定</p>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE: 系统架构五层设计 ============ -->
+<section class="slide sarch">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh api /architecture --layers</div>
+        <h2>系统架构：五层设计</h2>
+        <div class="sub">平台是唯一真相源，治理是行为边界 —— Agent 在中间干活</div>
+    </div>
+    <div class="layers">
+        <div class="layer reveal d1"><div class="lbar" style="background:var(--red)"></div>
+            <div class="lname"><h3>治理层</h3><span class="en">GOVERNANCE</span></div>
+            <div class="lright"><div class="chips"><span class="chipx">Rulesets / Branch Protection</span><span class="chipx">强制人工 Approve</span><span class="chipx">网络防火墙</span><span class="chipx">审计日志</span></div>
+            <div class="ldesc">所有 Agent 行为的硬边界 —— 不可绕过、全程留痕</div></div>
+        </div>
+        <div class="layer reveal d2"><div class="lbar" style="background:var(--purple)"></div>
+            <div class="lname"><h3>智能体层</h3><span class="en">AGENTS</span></div>
+            <div class="lright"><div class="chips"><span class="chipx">Coding Agent</span><span class="chipx">Review Agent</span><span class="chipx">Agent Merge</span><span class="chipx">Autofix</span><span class="chipx">Agent Mode (IDE)</span></div>
+            <div class="ldesc">执行者：领任务、产出 PR、响应反馈、自主迭代</div></div>
+        </div>
+        <div class="layer reveal d3"><div class="lbar" style="background:var(--blue)"></div>
+            <div class="lname"><h3>模型层</h3><span class="en">MODELS</span></div>
+            <div class="lright"><div class="chips"><span class="chipx">GPT / Claude / Gemini 多模型池</span><span class="chipx">按任务选模型</span><span class="chipx">BYOM 自带模型</span></div>
+            <div class="ldesc">大脑可替换：能力升级不改变工作流与治理</div></div>
+        </div>
+        <div class="layer reveal d4"><div class="lbar" style="background:var(--orange)"></div>
+            <div class="lname"><h3>上下文层</h3><span class="en">CONTEXT</span></div>
+            <div class="lright"><div class="chips"><span class="chipx">copilot-instructions.md</span><span class="chipx">AGENTS.md</span><span class="chipx">Copilot Spaces</span><span class="chipx">MCP 工具</span></div>
+            <div class="ldesc">知识供给：决定 AI 交付质量的关键变量（详见上下文工程）</div></div>
+        </div>
+        <div class="layer reveal d5"><div class="lbar" style="background:var(--green)"></div>
+            <div class="lname"><h3>平台层</h3><span class="en">PLATFORM</span></div>
+            <div class="lright"><div class="chips"><span class="chipx">Repo</span><span class="chipx">Issue</span><span class="chipx">Pull Request</span><span class="chipx">Actions</span><span class="chipx">Checks</span></div>
+            <div class="ldesc">状态与事件的唯一真相源：Agent 协作全部通过平台原语流转</div></div>
+        </div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE: PR 状态机协作协议 ============ -->
+<section class="slide sproto">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh pr view 128 --json state,checks,reviews</div>
+        <h2>协作协议：以 <span class="en g">PR</span> 为中心的状态机</h2>
+        <div class="sub">Agent 之间不直接对话 —— 靠平台状态流转异步协作</div>
+    </div>
+    <div class="prims">
+        <div class="card prim reveal d1"><div class="bar" style="background:var(--blue)"></div>
+            <h4 class="b">Issue<span class="cn">任务队列</span></h4>
+            <p>谁做什么、验收标准是什么 —— 人与 AI 共用的任务契约</p></div>
+        <div class="card prim reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <h4 class="pu">Pull Request<span class="cn">工作载体</span></h4>
+            <p>代码 + 讨论 + 迭代历史，Agent 的"会话"就是 PR 本身</p></div>
+        <div class="card prim reveal d3"><div class="bar" style="background:var(--orange)"></div>
+            <h4 class="o">Checks<span class="cn">质量信号</span></h4>
+            <p>CI / 扫描 / 评审状态 —— 驱动下一步动作的事件源</p></div>
+    </div>
+    <div class="machine reveal d3">
+        <div class="mtitle">PR 生命周期 —— 每个状态迁移都可触发 Agent 或等待人</div>
+        <div class="states">
+            <div class="st" style="border-color:var(--purple)"><div class="nm pu">Draft</div><div class="by">Coding Agent 产出</div></div>
+            <span class="sar">→</span>
+            <div class="st" style="border-color:var(--red)"><div class="nm r">Checks</div><div class="by">CI + Autofix</div></div>
+            <span class="sar">→</span>
+            <div class="st" style="border-color:var(--orange)"><div class="nm o">Review</div><div class="by">AI 初审 + 人终审</div></div>
+            <span class="sar">→</span>
+            <div class="st" style="border-color:var(--blue)"><div class="nm b">Approved</div><div class="by">人工批准</div></div>
+            <span class="sar">→</span>
+            <div class="st" style="border-color:var(--green)"><div class="nm g">Merged</div><div class="by">Agent Merge 收口</div></div>
+        </div>
+        <div class="backflow">↻ 任一环节失败（冲突 / CI 红 / 评审意见）→ 状态回退，Agent 自动接手迭代</div>
+    </div>
+    <div class="bottom reveal d5">
+        <b class="g">设计优势：</b>异步（人与 Agent 都不必在线等待）· 可恢复（状态在平台不在内存）· 天然审计（每次迁移留痕）· 人可在任意节点插入接管。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE: 编排层 Agent HQ ============ -->
+<section class="slide shq">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh agents list --status running</div>
+        <h2>编排层：<span class="en">Agent HQ / Mission Control</span></h2>
+        <div class="sub">一个入口管理所有智能体 —— 从单兵作战到编队交付</div>
+    </div>
+    <div class="term2 reveal d1">
+        <div class="tbar2">
+            <span class="dot2" style="background:#F85149"></span>
+            <span class="dot2" style="background:#F0883E"></span>
+            <span class="dot2" style="background:#3FB950"></span>
+            <span class="t">mission-control — gh agents</span>
+        </div>
+        <div class="tbody2">
+            <div class="cmd"><span class="p">➜</span> $ gh agents list</div>
+            <div><span class="g">●</span> #128 fix-cart-discount&nbsp;&nbsp;<span class="pu">coding-agent</span>&nbsp;&nbsp;<span class="g">▶ running</span>&nbsp;&nbsp;<span class="m">12m</span></div>
+            <div><span class="g">●</span> #131 add-csv-export&nbsp;&nbsp;&nbsp;&nbsp;<span class="pu">coding-agent</span>&nbsp;&nbsp;<span class="g">▶ running</span>&nbsp;&nbsp;<span class="m">4m</span></div>
+            <div><span class="b">●</span> #127 bump-deps&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="g">agent-merge</span>&nbsp;&nbsp;<span class="b">✓ merged</span>&nbsp;&nbsp;&nbsp;<span class="m">1h</span></div>
+            <div class="cmd" style="margin-top:10px"><span class="p">➜</span> $ gh agents watch 128</div>
+            <div class="m">[09:12] planning complete → 3 files to change</div>
+            <div class="m">[09:15] tests <span class="g">14/14 passed ✓</span> → pushing to copilot/fix-342</div>
+        </div>
+    </div>
+    <div class="hqcards">
+        <div class="card hqc reveal d2"><div class="bar" style="background:var(--blue)"></div>
+            <h4>统一面板</h4><p>Web / IDE / Mobile 查看所有 Agent 会话、进度、Session Log，随时暂停或介入</p></div>
+        <div class="card hqc reveal d3"><div class="bar" style="background:var(--purple)"></div>
+            <h4>多 Agent 并行</h4><p>同时委托多个任务互不阻塞 —— 每个任务独立沙箱、独立 copilot/* 分支</p></div>
+        <div class="card hqc reveal d4"><div class="bar" style="background:var(--orange)"></div>
+            <h4>跨厂商接入</h4><p>Agent HQ 开放第三方 Agent（Claude Code / Codex / Jules…）同平台统一管控与审计</p></div>
+        <div class="card hqc reveal d5"><div class="bar" style="background:var(--green)"></div>
+            <h4>任务路由</h4><p>按任务类型选择合适的 Agent 与模型：Bug 修复、评审、合并各用其长</p></div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 5: 五大能力总览 ============ -->
+<section class="slide s5">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ ls core-capabilities/</div>
+        <h2>五大核心 <span class="en">AI</span> 能力总览</h2>
+        <div class="sub">五者串联构成闭环：起点 → 引擎 → 质检 → 收口 → 底座</div>
+    </div>
+    <div class="caps">
+        <div class="card cap reveal d1"><div class="bar" style="background:var(--blue)"></div>
+            <div class="ic">📋</div><h3>Issue AI</h3>
+            <div class="role b" style="border-color:var(--blue)">闭环起点</div>
+            <p>自然语言 → 结构化任务，AI 可消费的需求入口</p></div>
+        <div class="card cap reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <div class="ic">🤖</div><h3>Coding Agent</h3>
+            <div class="role pu" style="border-color:var(--purple)">交付引擎</div>
+            <p>云端沙箱自主编码，Issue 进、Draft PR 出</p></div>
+        <div class="card cap reveal d3"><div class="bar" style="background:var(--orange)"></div>
+            <div class="ic">🔍</div><h3>Code Review Agent</h3>
+            <div class="role o" style="border-color:var(--orange)">质检站</div>
+            <p>AI 初审拦截问题，人工评审升级为把关</p></div>
+        <div class="card cap reveal d4"><div class="bar" style="background:var(--green)"></div>
+            <div class="ic">🔀</div><h3>Agent Merge</h3>
+            <div class="role g" style="border-color:var(--green)">最后一公里</div>
+            <p>解冲突、修 CI、跟进意见，门禁满足即合并</p></div>
+        <div class="card cap reveal d5"><div class="bar" style="background:var(--red)"></div>
+            <div class="ic">🛡️</div><h3>Copilot Autofix</h3>
+            <div class="role r" style="border-color:var(--red)">安全底座</div>
+            <p>CodeQL 发现漏洞 → AI 生成修复，发现即修复</p></div>
+    </div>
+    <div class="next reveal d6">接下来逐一拆解 →</div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 6: Issue AI ============ -->
+<section class="slide detail s6">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">capabilities</span> $ gh issue create --with copilot</div>
+        <h2><span class="en b">Issue AI</span> — 需求管理的 AI 入口</h2>
+        <div class="sub">把 Issue 从「人工文本」变成「AI 可执行的任务定义」</div>
+    </div>
+    <div class="card whatis reveal d1"><div class="bar" style="background:var(--blue)"></div>
+        <h3 class="b">是什么</h3>
+        <p>GitHub Issues 内置的 Copilot 能力集。自然语言一句话即可生成结构化 Issue（标题、复现步骤、标签），支持批量创建、模板匹配与重复检测。<br><br>
+        Issue 同时是 Coding Agent 的最佳提示词载体：标题 = 目标，正文 = 验收标准，评论 = 补充上下文。</p>
+    </div>
+    <div class="pgrid">
+        <div class="card pcell reveal d2"><h4>自然语言创建</h4><p>口述需求 → 自动结构化 Issue，套用仓库的 Issue Template / Forms，支持一次批量创建多个</p></div>
+        <div class="card pcell reveal d3"><h4>摘要与解释</h4><p>长讨论串一键摘要；解释 Issue 中引用的代码与报错，快速建立上下文</p></div>
+        <div class="card pcell reveal d4"><h4>子任务拆解</h4><p>大需求拆成 Sub-issues 树，每个子任务可独立分配给人或 Copilot</p></div>
+        <div class="card pcell reveal d5"><h4>assign 给 Copilot</h4><p>Issue 直接指派给虚拟协作者 Copilot，即刻触发 Coding Agent 开始工作</p></div>
+    </div>
+    <div class="bottom reveal d6" style="border-color:var(--blue)">
+        <b class="b">最佳实践：</b>写清「验收标准」是 AI 交付成功率的第一杠杆；适合委托 Bug 修复 / 测试补全 / 文档更新，不适合目标模糊的需求。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 7: Coding Agent ============ -->
+<section class="slide detail s7">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">capabilities</span> $ gh issue edit 42 --add-assignee copilot</div>
+        <h2><span class="en pu">Coding Agent</span> — 云端异步自主编码</h2>
+        <div class="sub">Issue 进，Draft PR 出 —— 端到端 AI 交付的核心载体</div>
+    </div>
+    <div class="card whatis reveal d1"><div class="bar" style="background:var(--purple)"></div>
+        <h3 class="pu">是什么</h3>
+        <p>GitHub 官方云端编码智能体。把 Issue 或一句话任务交给它，在 GitHub Actions 驱动的临时沙箱中：分析代码库 → 制定计划 → 编码 → 跑测试 → 自我修复，最终产出 Draft PR 等你评审。<br><br>
+        入口：Issue assign、Agents 面板、VS Code、CLI、Mobile。</p>
+    </div>
+    <div class="pgrid">
+        <div class="card pcell reveal d2"><h4>沙箱 + 防火墙</h4><p>临时环境用完即毁；默认限制出站网络防数据外泄，管理员可配白名单</p></div>
+        <div class="card pcell reveal d3"><h4>权限边界</h4><p>只能推 copilot/* 分支；不能 approve / merge 自己的 PR；触发的 CI 需人批准</p></div>
+        <div class="card pcell reveal d4"><h4>MCP 可扩展</h4><p>通过 Model Context Protocol 接入浏览器测试、内部 API、数据库 schema 等外部工具</p></div>
+        <div class="card pcell reveal d5"><h4>全程可审计</h4><p>完整 Session Log：每一步推理、命令、文件变更都可回放审查</p></div>
+    </div>
+    <div class="bottom reveal d6" style="border-color:var(--purple)">
+        <b class="pu">适用场景：</b>Bug 修复 / 测试覆盖 / 技术债 ★★★★★；中型功能 ★★★；跨服务架构变更与高风险模块仍需人主导。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 8: Code Review Agent ============ -->
+<section class="slide detail s8">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">capabilities</span> $ gh pr review --request copilot</div>
+        <h2><span class="en o">Code Review Agent</span> — AI 代码评审</h2>
+        <div class="sub">AI 负责广度（每行都看），人负责深度（业务与架构）</div>
+    </div>
+    <div class="card whatis reveal d1"><div class="bar" style="background:var(--orange)"></div>
+        <h3 class="o">是什么</h3>
+        <p>Copilot 作为「第一位评审者」自动审查 PR。已进化为 Agentic 评审：不只看 diff，会主动探索代码库相关文件，理解变更的全局影响。<br><br>
+        可通过 Rulesets 设为仓库必需评审步骤，对 Coding Agent 产出的 PR 同样生效 —— AI 写的代码先过 AI 评审。</p>
+    </div>
+    <div class="pgrid">
+        <div class="card pcell reveal d2"><h4>自动初审</h4><p>PR 创建即触发，数分钟给出意见：Bug、性能、安全隐患、可读性</p></div>
+        <div class="card pcell reveal d3"><h4>一键修复建议</h4><p>评审意见附 Suggested Changes，可直接 commit 应用</p></div>
+        <div class="card pcell reveal d4"><h4>自定义评审规范</h4><p>用 copilot-instructions.md 定义团队关注点（如 SQL 参数化检查），持续降噪</p></div>
+        <div class="card pcell reveal d5"><h4>评审 → 修复闭环</h4><p>意见直接转给 Coding Agent 自动修复并更新 PR，形成 AI 审 → AI 改循环</p></div>
+    </div>
+    <div class="bottom reveal d6" style="border-color:var(--orange)">
+        <b class="o">边界：</b>AI 评审不计入必需人工批准数 —— 无法判断「该不该做」，业务正确性与架构取舍仍由人终审。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 9: Agent Merge ============ -->
+<section class="slide s9">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">capabilities</span> $ gh pr merge --agent --when-ready</div>
+        <h2><span class="en g">Agent Merge</span> — 自动清障与合并</h2>
+        <div class="sub">补上「PR 已批准却没人收尾」的最后一公里</div>
+    </div>
+    <div class="card whatis reveal d1"><div class="bar" style="background:var(--green)"></div>
+        <h3>是什么</h3>
+        <p>让 Agent 持续监控 PR 直到合并完成：自动解决合并冲突、修复 CI 失败、响应评审意见，所有门禁满足后自动执行合并。<br><br>
+        「Fix with Copilot」一键委托冲突解决：云端分析双方变更意图，生成语义正确的方案并验证后推送。</p>
+    </div>
+    <div class="tbl reveal d2">
+        <div class="row">
+            <div class="cellt hd">场景</div><div class="cellt hd">传统 Auto-merge</div><div class="cellt hd">Agent Merge</div>
+        </div>
+        <div class="row">
+            <div class="cellt">出现合并冲突</div><div class="cellt no">✗ 停止等人处理</div><div class="cellt yes">✓ AI 分析并解决</div>
+        </div>
+        <div class="row">
+            <div class="cellt">CI 检查失败</div><div class="cellt no">✗ 停止等人修复</div><div class="cellt yes">✓ AI 定位并修复</div>
+        </div>
+        <div class="row">
+            <div class="cellt">评审提出意见</div><div class="cellt no">✗ 等人改代码</div><div class="cellt yes">✓ AI 响应修改</div>
+        </div>
+        <div class="row">
+            <div class="cellt hd">本质</div><div class="cellt no">被动等待条件满足</div><div class="cellt yes">主动清除障碍</div>
+        </div>
+    </div>
+    <div class="bottom reveal d4">
+        <b class="g">安全边界：</b>不绕过任何门禁 —— 必需的人工 Approve 与 CI 检查依然强制；「自动合并」只是条件满足后代人点击。最佳场景：依赖升级 / 文档类低风险 PR。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 10: Copilot Autofix ============ -->
+<section class="slide s10">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">capabilities</span> $ gh code-scanning autofix --all</div>
+        <h2><span class="en r">Copilot Autofix</span> — 安全漏洞自动修复</h2>
+        <div class="sub">Found means fixed：发现即修复，安全左移真正落地</div>
+    </div>
+    <div class="flow">
+        <div class="card fnode reveal d1"><div class="bar" style="background:var(--red)"></div>
+            <h3>CodeQL 扫描</h3><p>数据流分析<br>精确定位漏洞</p></div>
+        <div class="flink reveal d1">→</div>
+        <div class="card fnode reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <h3>Autofix 引擎</h3><p>LLM + CodeQL<br>精确上下文</p></div>
+        <div class="flink reveal d2">→</div>
+        <div class="card fnode reveal d3"><div class="bar" style="background:var(--blue)"></div>
+            <h3>修复方案</h3><p>代码 diff<br>+ 自然语言解释</p></div>
+        <div class="flink reveal d3">→</div>
+        <div class="card fnode reveal d4"><div class="bar" style="background:var(--green)"></div>
+            <h3>一键接受</h3><p>漏洞在合并前<br>消除</p></div>
+    </div>
+    <div class="key reveal d5">关键：把 CodeQL 污点数据流路径与漏洞类型作为精确上下文喂给模型 —— 修复准确率远高于通用 LLM 盲猜</div>
+    <div class="covs">
+        <div class="card cov reveal d5"><h4>新增代码</h4><p>PR 触发扫描，告警自动附修复建议，合并前消除（安全左移）</p></div>
+        <div class="card cov reveal d6"><h4>存量安全债</h4><p>Security Campaigns 批量圈选漏洞，AI 批量生成修复 PR，统一跟踪</p></div>
+        <div class="card cov reveal d7"><h4>主流漏洞类型</h4><p>SQL 注入 / XSS / SSRF / 路径遍历 / 硬编码凭据等，覆盖 90%+ 常见告警</p></div>
+        <div class="card cov stat reveal d8">
+            <div class="big">3×</div>
+            <p>漏洞修复速度提升<br>（XSS 类快 7 倍+）</p>
+        </div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE: 上下文工程 ============ -->
+<section class="slide sctx">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ cat AGENTS.md .github/copilot-instructions.md</div>
+        <h2>上下文工程：喂给 <span class="en">AI</span> 正确的知识</h2>
+        <div class="sub">AI 交付质量 = 模型能力 × 上下文质量 —— 后者才是你能控制的</div>
+    </div>
+    <div class="cgrid">
+        <div class="card ccell reveal d1"><div class="bar" style="background:var(--blue)"></div>
+            <h4 class="b">copilot-instructions.md</h4><div class="role">仓库级规范 · 全部 Copilot 功能生效</div>
+            <p>技术栈约定、代码风格、安全禁忌、评审关注点 —— 写一次，补全 / 评审 / Agent 全都遵守</p></div>
+        <div class="card ccell reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <h4 class="pu">AGENTS.md</h4><div class="role">Agent 操作手册 · Coding Agent 专用</div>
+            <p>构建命令、测试方式、目录约定、部署注意 —— 让 Agent 在沙箱里"知道怎么干活"</p></div>
+        <div class="card ccell reveal d3"><div class="bar" style="background:var(--orange)"></div>
+            <h4 class="o">Copilot Spaces</h4><div class="role">组织级知识空间 · 跨仓库共享</div>
+            <p>架构文档、领域知识、API 规范集中托管 —— 团队隐性知识显性化，问答与 Agent 共用</p></div>
+        <div class="card ccell reveal d4"><div class="bar" style="background:var(--green)"></div>
+            <h4 class="g">MCP 工具接入</h4><div class="role">Model Context Protocol · 给 Agent "手"</div>
+            <p>内部 API、数据库 schema、浏览器测试、监控数据 —— Agent 从"只看代码"到"操作真实环境"</p></div>
+    </div>
+    <div class="bottom reveal d5">
+        <b class="pu">投入产出最高的一件事：</b>把口口相传的隐性知识写进仓库 —— 上下文越完整，AI 一次交付成功率越高，且沉淀为团队资产。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 11: 治理 ============ -->
+<section class="slide s11">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh ruleset check --branch main</div>
+        <h2>治理内建：<span class="en">AI</span> 干活，人把关</h2>
+        <div class="sub">规模化的前提是可控 —— 所有 Agent 行为受平台门禁约束</div>
+    </div>
+    <div class="lcards">
+        <div class="card lc reveal d1"><div class="bar" style="background:var(--green); width:6px; height:100%; right:auto"></div>
+            <h4>Branch Protection / Rulesets</h4><p>Agent 产出的 PR 受完整分支保护约束，无法绕过</p></div>
+        <div class="card lc reveal d2"><div class="bar" style="background:var(--green); width:6px; height:100%; right:auto"></div>
+            <h4>强制人工 Approve</h4><p>Draft PR 必须他人批准才能合并；AI 评审不计入批准数</p></div>
+        <div class="card lc reveal d3"><div class="bar" style="background:var(--green); width:6px; height:100%; right:auto"></div>
+            <h4>网络防火墙 + 沙箱隔离</h4><p>Coding Agent 默认限制出站网络，环境用完即毁</p></div>
+        <div class="card lc reveal d4"><div class="bar" style="background:var(--green); width:6px; height:100%; right:auto"></div>
+            <h4>完整审计</h4><p>所有行为以 Copilot 身份记录，Session Log 可回放</p></div>
+    </div>
+    <div class="tbl reveal d5">
+        <div class="row"><div class="cellt hd">环节</div><div class="cellt hd pu">AI 做</div><div class="cellt hd b">人做</div></div>
+        <div class="row"><div class="cellt">需求</div><div class="cellt pu">结构化 · 拆解</div><div class="cellt b">定义问题与优先级</div></div>
+        <div class="row"><div class="cellt">编码</div><div class="cellt pu">全部执行 + 自测</div><div class="cellt b">提供验收标准</div></div>
+        <div class="row"><div class="cellt">安全</div><div class="cellt pu">扫描 + 生成修复</div><div class="cellt b">确认接受修复</div></div>
+        <div class="row"><div class="cellt">评审</div><div class="cellt pu">初审 + 自动修复</div><div class="cellt b">终审业务正确性</div></div>
+        <div class="row"><div class="cellt">合并</div><div class="cellt pu">清障 + 执行合并</div><div class="cellt b">设定门禁规则</div></div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 12: 演示项目 ============ -->
+<section class="slide sdemo">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">shop-web</span> $ gh demo replay --issue 342 --to merge</div>
+        <h2>演示项目：一个 <span class="en b">Bug</span> 的端到端 <span class="en">AI</span> 交付</h2>
+        <div class="sub">电商应用 shop-web · 「多张优惠券叠加时金额计算错误」· 全程实录</div>
+    </div>
+    <div class="proj reveal d1">
+        <div class="step">
+            <span class="t">09:00</span><span class="who b" style="border-color:var(--blue)">👤 人</span>
+            <span class="desc">一句话创建 Issue #342，Copilot 自动补全<b>复现步骤 + 验收标准</b>（含 3 组边界用例）</span>
+        </div>
+        <div class="step">
+            <span class="t">09:04</span><span class="who b" style="border-color:var(--blue)">👤 人</span>
+            <span class="desc">Issue assign 给 <code>@copilot</code> —— 委托完成，<span class="m2">人切去做别的工作</span></span>
+        </div>
+        <div class="step">
+            <span class="t">09:05</span><span class="who pu" style="border-color:var(--purple)">🤖 Coding Agent</span>
+            <span class="desc">云端沙箱启动：分析代码库 → 定位 <code>cart/discount.ts</code> 叠加规则缺陷 → 修复并补 3 个单测</span>
+        </div>
+        <div class="step">
+            <span class="t">09:18</span><span class="who pu" style="border-color:var(--purple)">🤖 Coding Agent</span>
+            <span class="desc">自测通过，产出 <b>Draft PR #128</b>，附实现说明与完整 Session Log</span>
+        </div>
+        <div class="step">
+            <span class="t">09:19</span><span class="who r" style="border-color:var(--red)">🛡️ CI + Autofix</span>
+            <span class="desc">CodeQL 扫描发现一处注入风险 → Autofix 生成修复建议，一并合入 PR</span>
+        </div>
+        <div class="step">
+            <span class="t">09:24</span><span class="who o" style="border-color:var(--orange)">🔍 Review Agent</span>
+            <span class="desc">AI 初审提出 2 条意见（空券边界、命名）→ 自动回流 Coding Agent 修复并更新 PR</span>
+        </div>
+        <div class="step">
+            <span class="t">09:55</span><span class="who b" style="border-color:var(--blue)">👤 人</span>
+            <span class="desc">人工终审：对照验收标准核对业务规则 → <b class="g">Approve ✓</b></span>
+        </div>
+        <div class="step">
+            <span class="t">09:57</span><span class="who g" style="border-color:var(--green)">🔀 Agent Merge</span>
+            <span class="desc">main 有新提交产生冲突 → AI 解冲突 → 门禁全绿 → <b class="g">自动合并 ✓</b></span>
+        </div>
+    </div>
+    <div class="stats">
+        <div class="stat reveal d2"><span class="big g">57<span style="font-size:30px"> min</span></span>
+            <span class="lbl"><b>端到端总耗时</b><br>Issue 创建 → 合并上线</span></div>
+        <div class="stat reveal d3"><span class="big b">10<span style="font-size:30px"> min</span></span>
+            <span class="lbl"><b>人工实际投入</b><br>写 Issue 4 min + 终审 6 min</span></div>
+        <div class="stat reveal d4"><span class="big pu">2<span style="font-size:30px"> 次</span></span>
+            <span class="lbl"><b>人工介入节点</b><br>定义问题 + 质量把关，其余全自主</span></div>
+        <div class="concl reveal d5">
+            <b class="g">复盘：</b>人从「执行者」变成「委托人」—— 验收标准写得越清楚，AI 一次交付成功率越高。
+        </div>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE: 度量体系 ============ -->
+<section class="slide smet">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ gh metrics report --quarter Q3</div>
+        <h2>度量体系：如何证明设计有效</h2>
+        <div class="sub">没有度量就没有信任 —— 三层指标闭环验证</div>
+    </div>
+    <div class="cols">
+        <div class="card mcol g1 reveal d1"><div class="bar" style="background:var(--blue)"></div>
+            <div class="mtag b">LAYER 1 / DORA</div><h3>交付效率</h3>
+            <ul>
+                <li>部署频率<span>Agentic 化后应显著上升</span></li>
+                <li>变更前置时间<span>Issue → 上线的端到端时长</span></li>
+                <li>变更失败率<span>验证 AI 交付质量不劣化</span></li>
+                <li>MTTR<span>故障恢复：Autofix + 委托修复提速</span></li>
+            </ul></div>
+        <div class="card mcol g2 reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <div class="mtag pu">LAYER 2 / AI 效能</div><h3>智能体表现</h3>
+            <ul>
+                <li>一次交付成功率<span>无需人改代码即可合并的比例</span></li>
+                <li>人工介入次数<span>每 PR 的人工干预点数量</span></li>
+                <li>AI 产出 PR 占比<span>Agent 承接工作量的渗透率</span></li>
+                <li>Issue→Merge 时长<span>对比人工基线（演示项目 57min）</span></li>
+            </ul></div>
+        <div class="card mcol g3 reveal d3"><div class="bar" style="background:var(--green)"></div>
+            <div class="mtag g">LAYER 3 / 质量守护</div><h3>安全与质量</h3>
+            <ul>
+                <li>评审拦截缺陷数<span>Review Agent 挡在合并前的问题</span></li>
+                <li>漏洞修复时长<span>Autofix 后应缩短 3 倍以上</span></li>
+                <li>回滚率对比<span>AI PR vs 人工 PR，持续监控</span></li>
+                <li>审计覆盖率<span>Session Log 完整性 100%</span></li>
+            </ul></div>
+    </div>
+    <div class="bottom reveal d4">
+        <b class="g">起步建议：</b>先盯两个北极星 —— <b>AI 产出 PR 占比</b>（渗透）与 <b>一次交付成功率</b>（质量）；数据来自 Copilot 使用度量 API 与 PR 元数据。
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE: 设计原则 ============ -->
+<section class="slide sprin">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ cat DESIGN_PRINCIPLES.md</div>
+        <h2>六条设计原则</h2>
+        <div class="sub">GitHub Agentic SDLC 的底层哲学 —— 自建体系也应遵循</div>
+    </div>
+    <div class="pgrid2">
+        <div class="card pc reveal d1"><div class="bar" style="background:var(--green)"></div>
+            <span class="num g">01</span><h3>PR 为中心</h3>
+            <p>一切工作以 PR 呈现 —— 天然可评审、可讨论、可回滚，Agent 协作即状态流转</p></div>
+        <div class="card pc reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <span class="num pu">02</span><h3>Draft-first</h3>
+            <p>AI 产出默认是草稿 —— 信任需要赢得，而不是预设；人确认后才升级为正式变更</p></div>
+        <div class="card pc reveal d3"><div class="bar" style="background:var(--blue)"></div>
+            <span class="num b">03</span><h3>人是 Approver<br>不是 Executor</h3>
+            <p>人可以不写代码，但不能被绕过 —— 终审权与门禁设定权不可让渡给 AI</p></div>
+        <div class="card pc reveal d4"><div class="bar" style="background:var(--red)"></div>
+            <span class="num r">04</span><h3>最小权限</h3>
+            <p>copilot/* 分支限制、出站防火墙、不可自批自合 —— Agent 能力越强，围栏越要硬</p></div>
+        <div class="card pc reveal d5"><div class="bar" style="background:var(--orange)"></div>
+            <span class="num o">05</span><h3>一切可审计</h3>
+            <p>每一步推理、命令、变更都有 Session Log —— 出问题可回放，责任可追溯</p></div>
+        <div class="card pc reveal d6"><div class="bar" style="background:var(--green)"></div>
+            <span class="num g">06</span><h3>上下文即资产</h3>
+            <p>Instructions / AGENTS.md / Spaces 沉淀在仓库 —— 越用越准，成为组织的复利</p></div>
+    </div>
+    <div class="tail reveal d7">治理不是给 AI 减速，而是让 AI 可以放心加速</div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+<!-- ============ SLIDE 13: 落地路线与总结 ============ -->
+<section class="slide s12">
+    <div class="grid-bg"></div>
+    <div class="head reveal">
+        <div class="prompt"><span class="p">➜</span> <span class="c">agentic-sdlc</span> $ cat roadmap.md && echo done ✓</div>
+        <h2>落地路线与总结</h2>
+        <div class="sub">从零改造成本的能力开始，逐步走向无人值守交付</div>
+    </div>
+    <div class="phases">
+        <div class="card ph reveal d1"><div class="bar" style="background:var(--green)"></div>
+            <div class="tag g">PHASE 1 / 即刻启用</div>
+            <h3>Code Review Agent<br>+ Autofix</h3>
+            <p>零流程改造，立即降噪提效。配置 copilot-instructions.md 团队规范，让 AI 产出符合标准。</p></div>
+        <div class="card ph reveal d2"><div class="bar" style="background:var(--purple)"></div>
+            <div class="tag pu">PHASE 2 / 委托任务</div>
+            <h3>Coding Agent<br>承接低风险工作</h3>
+            <p>Bug 修复 / 测试补全 / 技术债 / 文档。用 Issue 验收标准的清晰度提升交付成功率。</p></div>
+        <div class="card ph reveal d3"><div class="bar" style="background:var(--blue)"></div>
+            <div class="tag b">PHASE 3 / 闭环收口</div>
+            <h3>Agent Merge<br>试点自动合并</h3>
+            <p>先在门禁健全的仓库试点依赖升级类 PR；MCP 接入内部系统，持续扩展自动化边界。</p></div>
+    </div>
+    <div class="final reveal d4">
+        <h3>GitHub 是目前 SDLC AI 覆盖最完整的单一平台</h3>
+        <p>Issue、PR、CI、安全同平台，AI 上下文不断链；人从执行者转型为「定义问题 + 质量把关」，其余交给 Agent。</p>
+    </div>
+    <div class="foot"><span>GITHUB AGENTIC SDLC</span><span class="pnum"></span></div>
+</section>
+
+</main>
+</div>
+
+<!-- 页码指示器（舞台之外的 UI） -->
+<div class="deck-controls" id="pageIndicator">1 / 12</div>
+
+<!-- 内联编辑控件 -->
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="编辑模式 (E)">✏️</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   键盘 ← → / Space / PgUp PgDn、触摸滑动、滚轮
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.current = 0;
+        this.stage = document.getElementById('deckStage');
+        this.indicator = document.getElementById('pageIndicator');
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupTouchNav();
+        this.setupWheelNav();
+        this.slides.forEach((s, idx) => {
+            const p = s.querySelector('.pnum');
+            if (p) p.textContent = `${String(idx + 1).padStart(2, '0')} / ${this.slides.length}`;
+        });
+        this.show(0);
+    }
+    /* 整体缩放 1920×1080 舞台适配窗口（信箱式，不重排内容） */
+    setupStageScale() {
+        const scale = () => {
+            const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+            const x = (innerWidth - 1920 * k) / 2;
+            const y = (innerHeight - 1080 * k) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+        };
+        scale();
+        addEventListener('resize', scale);
+    }
+    setupKeyboardNav() {
+        document.addEventListener('keydown', e => {
+            if (e.target.getAttribute && e.target.getAttribute('contenteditable')) return;
+            if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); this.show(this.current + 1); }
+            if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); this.show(this.current - 1); }
+            if (e.key === 'Home') this.show(0);
+            if (e.key === 'End') this.show(this.slides.length - 1);
+        });
+    }
+    setupTouchNav() {
+        let sx = 0;
+        document.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 60) this.show(this.current + (dx < 0 ? 1 : -1));
+        }, { passive: true });
+    }
+    setupWheelNav() {
+        let lock = false;
+        document.addEventListener('wheel', e => {
+            if (lock || document.body.classList.contains('editing')) return;
+            if (Math.abs(e.deltaY) < 24) return;
+            lock = true; setTimeout(() => lock = false, 550);
+            this.show(this.current + (e.deltaY > 0 ? 1 : -1));
+        }, { passive: true });
+    }
+    show(i) {
+        this.current = Math.max(0, Math.min(i, this.slides.length - 1));
+        this.slides.forEach((s, idx) => {
+            s.classList.toggle('active', idx === this.current);
+            s.classList.toggle('visible', idx === this.current);
+        });
+        this.indicator.textContent = `${this.current + 1} / ${this.slides.length}`;
+    }
+}
+const deck = new SlidePresentation();
+
+/* ===========================================
+   INLINE EDITOR — 悬停左上角或按 E 进入编辑
+   Ctrl/Cmd+S 保存修改后的 HTML
+   =========================================== */
+const editor = {
+    isActive: false,
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('editing', this.isActive);
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide h4,.slide p,.slide span,.slide div.sub,.slide b')
+            .forEach(el => {
+                if (this.isActive) el.setAttribute('contenteditable', 'true');
+                else el.removeAttribute('contenteditable');
+            });
+        if (!this.isActive) this.save();
+    },
+    save() {
+        try { localStorage.setItem('agentic-sdlc-deck', document.documentElement.outerHTML); } catch (e) {}
+    }
+};
+const hotzone = document.getElementById('editHotzone');
+const editToggle = document.getElementById('editToggle');
+let hideTimeout = null;
+hotzone.addEventListener('mouseenter', () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); });
+hotzone.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400);
+});
+editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+editToggle.addEventListener('mouseleave', () => {
+    hideTimeout = setTimeout(() => { if (!editor.isActive) editToggle.classList.remove('show'); }, 400);
+});
+editToggle.addEventListener('click', () => editor.toggleEditMode());
+hotzone.addEventListener('click', () => editor.toggleEditMode());
+document.addEventListener('keydown', e => {
+    if ((e.key === 'e' || e.key === 'E') && !(e.target.getAttribute && e.target.getAttribute('contenteditable'))) editor.toggleEditMode();
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'GitHub-Agentic-SDLC.html';
+        a.click();
+    }
+});
+</script>
+</body>
+</html>

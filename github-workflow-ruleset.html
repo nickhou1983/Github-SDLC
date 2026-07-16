@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Workflow 与 Ruleset · 技术教程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   THEME TOKENS — change here to restyle deck
+   =========================================== */
+:root{
+  --stage-bg:#05070a;
+  --slide-bg:#0d1117;
+  --panel:#111820;
+  --panel-2:#0f1620;
+  --line:#1f2a37;
+  --line-soft:#18212c;
+  --green:#39d353;
+  --green-dim:#1f7a33;
+  --cyan:#39c5ff;
+  --amber:#f0b429;
+  --red:#ff5f56;
+  --text:#c9d1d9;
+  --text-hi:#f2f6fb;
+  --dim:#5b6b7b;
+  --font-mono:'JetBrains Mono',monospace;
+  --font-body:'Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   MANDATORY FIXED-STAGE BASE (viewport-base.css)
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg,#000);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg,#fff);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg,#fff);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls{display:none!important;}
+}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important;}}
+
+/* ===========================================
+   GLOBAL SLIDE LOOK
+   =========================================== */
+.slide{font-family:var(--font-body);color:var(--text);
+  background:
+    radial-gradient(1200px 700px at 82% -12%, rgba(57,197,255,.08), transparent 60%),
+    radial-gradient(900px 620px at -6% 112%, rgba(57,211,83,.08), transparent 55%),
+    var(--slide-bg);
+}
+.slide::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:46px 46px;pointer-events:none;}
+
+/* header / footer chrome for content slides */
+.shead{position:absolute;top:64px;left:90px;right:90px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:20px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  padding-bottom:22px;border-bottom:1px solid var(--line);}
+.shead .kick{color:var(--green);}
+.shead .pg{color:var(--dim);}
+h2{position:absolute;top:132px;left:88px;right:90px;font-weight:900;font-size:62px;line-height:1.04;letter-spacing:-.01em;color:var(--text-hi);}
+h2 .cy{color:var(--green);}
+.body{position:absolute;top:246px;left:90px;right:90px;bottom:74px;}
+.foot{position:absolute;left:90px;right:90px;bottom:40px;display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:16px;letter-spacing:.1em;color:#37424f;text-transform:uppercase;}
+
+/* generic building blocks */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px 28px;}
+.card h3{font-family:var(--font-mono);font-size:22px;color:var(--green);margin-bottom:12px;letter-spacing:.04em;}
+.card p{font-size:23px;line-height:1.5;color:var(--text);}
+.muted{color:var(--dim);}
+.k-green{color:var(--green);}.k-cyan{color:var(--cyan);}.k-amber{color:var(--amber);}.k-red{color:var(--red);}
+b{color:var(--text-hi);font-weight:700;}
+
+.chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:19px;
+  padding:9px 18px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--text);}
+.chip .n{color:var(--green);}
+
+/* mono code block */
+.code{font-family:var(--font-mono);background:#080c12;border:1px solid var(--line);border-radius:12px;
+  padding:22px 26px;font-size:21px;line-height:1.62;color:#aeb9c4;overflow:hidden;}
+.code .c1{color:var(--dim);}       /* comment */
+.code .kw{color:var(--cyan);}      /* keyword */
+.code .st{color:var(--amber);}     /* string */
+.code .gn{color:var(--green);}     /* highlight */
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:22px;}
+th,td{text-align:left;padding:15px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+th{font-family:var(--font-mono);font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);}
+td b{color:var(--text-hi);}
+tr td:first-child{color:var(--text-hi);}
+
+/* flow diagram */
+.flow{display:flex;align-items:stretch;gap:0;}
+.fnode{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 14px;text-align:center;position:relative;}
+.fnode .ic{font-family:var(--font-mono);font-size:17px;color:var(--green);letter-spacing:.1em;}
+.fnode .nm{font-size:24px;color:var(--text-hi);font-weight:700;margin-top:8px;}
+.fnode .ds{font-size:16px;color:var(--dim);margin-top:6px;line-height:1.35;}
+.farr{display:flex;align-items:center;color:var(--green);font-size:30px;padding:0 12px;}
+
+/* ===========================================
+   ENTRANCE ANIMATIONS (trigger on .visible)
+   =========================================== */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+.slide.visible .reveal{opacity:1;transform:none;}
+.slide.visible .r1{transition-delay:.08s}.slide.visible .r2{transition-delay:.18s}
+.slide.visible .r3{transition-delay:.28s}.slide.visible .r4{transition-delay:.38s}
+.slide.visible .r5{transition-delay:.48s}.slide.visible .r6{transition-delay:.58s}
+.slide.visible .r7{transition-delay:.68s}.slide.visible .r8{transition-delay:.78s}
+
+/* ===========================================
+   TITLE SLIDE (Style A)
+   =========================================== */
+.title-slide .frame{position:absolute;inset:46px;border:1px solid var(--line);border-radius:14px;}
+.title-slide .topbar{position:absolute;top:78px;left:88px;right:88px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:19px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;}
+.title-slide .dots{display:flex;gap:11px;align-items:center;}
+.title-slide .dot{width:15px;height:15px;border-radius:50%;}
+.title-slide .dot.r{background:#ff5f56;}.title-slide .dot.y{background:var(--amber);}.title-slide .dot.g{background:var(--green);}
+.title-slide .tag{color:var(--green);}
+.title-slide .term{position:absolute;left:88px;top:212px;font-family:var(--font-mono);font-size:26px;color:var(--green-dim);}
+.title-slide .term .prompt{color:var(--green);}.title-slide .term .cmd{color:var(--cyan);}
+.title-slide h1{position:absolute;left:84px;top:300px;right:88px;margin:0;font-weight:900;font-size:150px;line-height:.96;letter-spacing:-.02em;color:var(--text-hi);}
+.title-slide h1 .accent{color:var(--green);}
+.title-slide .subtitle{position:absolute;left:90px;top:648px;right:150px;font-size:36px;font-weight:400;color:var(--dim);line-height:1.5;}
+.title-slide .subtitle b{color:var(--text);}
+.title-slide .chips{position:absolute;left:90px;bottom:150px;display:flex;gap:16px;}
+.title-slide .footer{position:absolute;left:88px;right:88px;bottom:80px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:19px;color:var(--dim);letter-spacing:.1em;}
+.cursor{display:inline-block;width:16px;height:30px;background:var(--green);margin-left:8px;transform:translateY(5px);animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+/* closing */
+.closing{--slide-bg:#0d1117;}
+.closing .card{padding:17px 28px;}
+.closing .card h3{margin-bottom:7px;}
+.closing .big{position:absolute;left:90px;top:300px;right:120px;font-weight:900;font-size:96px;line-height:1.02;color:var(--text-hi);letter-spacing:-.02em;}
+.closing .big .cy{color:var(--green);}
+
+/* edit affordance */
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:18px;left:18px;font-size:22px;background:var(--panel);color:var(--text);border:1px solid var(--line);
+  border-radius:10px;width:52px;height:52px;opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:10001;cursor:pointer;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--green);color:var(--green);}
+[contenteditable="true"]{outline:2px dashed var(--green);outline-offset:4px;border-radius:4px;}
+
+/* progress */
+.pbar{position:fixed;left:0;bottom:0;height:3px;background:var(--green);z-index:1000;transition:width .4s ease;}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+
+    <!-- ============ SLIDE 1 · TITLE ============ -->
+    <section class="slide title-slide active">
+      <div class="frame reveal r1"></div>
+      <div class="topbar reveal r1">
+        <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span style="margin-left:14px;">gh-devops.sh</span></div>
+        <div><span class="tag">● live</span> &nbsp; 2026-07-16</div>
+      </div>
+      <div class="term reveal r2"><span class="prompt">$</span> gh <span class="cmd">workflow</span> run &amp;&amp; gh <span class="cmd">ruleset</span> apply</div>
+      <h1 class="reveal r3">GitHub <span class="accent">Workflow</span><br>&amp; Ruleset</h1>
+      <div class="subtitle reveal r4">从 <b>CI/CD 自动化</b> 到 <b>分支治理</b> 与 <b>Bypass 审批</b> 的完整实践</div>
+      <div class="chips reveal r5">
+        <span class="chip"><span class="n">01</span> Workflow 组件</span>
+        <span class="chip"><span class="n">02</span> Ruleset 配置</span>
+        <span class="chip"><span class="n">03</span> Bypass 治理</span>
+        <span class="chip"><span class="n">04</span> Agentic Workflow</span>
+      </div>
+      <div class="footer reveal r6"><span>TEACHING · 技术教程</span><span><span class="pg">01 / 17</span><span class="cursor"></span></span></div>
+    </section>
+
+    <!-- ============ SLIDE 2 · AGENDA ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 00 · AGENDA</span><span class="pg">02 / 14</span></div>
+      <h2 class="reveal r1">本次内容 <span class="cy">目录</span></h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;">
+          <div class="card reveal r2"><h3>PART 1 · Workflow</h3><p><span class="muted">GitHub Actions 工作流是什么，核心组件（Event / Job / Runner / Step / Action）与完整示例。</span></p></div>
+          <div class="card reveal r3"><h3>PART 2 · Ruleset</h3><p><span class="muted">规则集概念、三种 target、通用配置项与各类可用规则详解。</span></p></div>
+          <div class="card reveal r4"><h3>PART 3 · Checks &amp; Deploy</h3><p><span class="muted">状态检查、部署、Workflow 门禁与合并队列——合并前的质量关卡。</span></p></div>
+          <div class="card reveal r5"><h3>PART 4 · Bypass 治理</h3><p><span class="muted">直接绕过 vs 委派审批流，以及 GitHub App 的能力边界与 REST API。</span></p></div>
+          <div class="card reveal r6" style="grid-column:1/-1;border-color:var(--green);"><h3>PART 5 · Agentic Workflow</h3><p><span class="muted">用自然语言 Markdown 编写、AI 智能体在 Actions 中执行的仓库自动化：机制、安全护栏与引擎。</span></p></div>
+        </div>
+        <div style="margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r7">
+          <span class="chip"><span class="n">▹</span> 面向 DevOps / 平台工程</span>
+          <span class="chip"><span class="n">▹</span> 覆盖 Repo / Org / Enterprise 三层级</span>
+          <span class="chip"><span class="n">▹</span> 含可运行 API 示例</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · SDLC</span><span>Workflow &amp; Ruleset</span></div>
+    </section>
+
+    <!-- ============ SLIDE 3 · BIG PICTURE ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · 全景</span><span class="pg">03 / 14</span></div>
+      <h2 class="reveal r1">从 Push 到 Merge 的<span class="cy">治理链路</span></h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:26px;color:var(--dim);line-height:1.5;margin-bottom:36px;">
+          <b class="k-green">Workflow</b> 负责"自动跑"（构建 / 测试 / 扫描），<b class="k-green">Ruleset</b> 负责"设门槛"（谁能改、要过哪些检查）。两者协作构成一条可控的交付链路。</p>
+        <div class="flow reveal r3">
+          <div class="fnode"><div class="ic">01</div><div class="nm">Push / PR</div><div class="ds">开发者提交变更</div></div>
+          <div class="farr">→</div>
+          <div class="fnode"><div class="ic">02</div><div class="nm">Workflow</div><div class="ds">Actions 自动构建 / 测试</div></div>
+          <div class="farr">→</div>
+          <div class="fnode" style="border-color:var(--amber);"><div class="ic" style="color:var(--amber);">03</div><div class="nm">Ruleset 门禁</div><div class="ds">状态检查 · 审查 · 签名</div></div>
+          <div class="farr">→</div>
+          <div class="fnode"><div class="ic">04</div><div class="nm">Merge</div><div class="ds">满足全部规则才合并</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:40px;">
+          <div class="card reveal r4"><h3>Workflow = 执行</h3><p class="muted">事件触发的自动化流水线，产生 <b>状态检查（checks）</b> 等结果信号。</p></div>
+          <div class="card reveal r5" style="border-color:var(--amber);"><h3 style="color:var(--amber);">Ruleset = 约束</h3><p class="muted">对分支 / 标签 / 推送施加规则；不满足则 <b>阻止</b> 合并或推送。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · SDLC</span><span>全景概览</span></div>
+    </section>
+
+    <!-- ============ SLIDE 4 · WHAT IS WORKFLOW ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 02 · WORKFLOW</span><span class="pg">04 / 14</span></div>
+      <h2 class="reveal r1">GitHub Actions <span class="cy">Workflow</span> 是什么</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:26px;line-height:1.55;color:var(--dim);margin-bottom:30px;">
+          一个 <b class="k-green">.github/workflows/*.yml</b> 文件即一条工作流：由 <b>事件触发</b>,拆成多个 <b>作业（Job）</b>,在 <b>运行器（Runner）</b> 上按 <b>步骤（Step）</b> 顺序执行。</p>
+        <div style="display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:start;">
+          <div class="code reveal r3">
+<span class="c1"># 层级结构</span><br>
+<span class="gn">Workflow</span> <span class="c1">（工作流）</span><br>
+ └─ <span class="kw">Event</span> <span class="c1">触发事件（on）</span><br>
+ └─ <span class="kw">Job</span> <span class="c1">作业 · 默认并行</span><br>
+ &nbsp;&nbsp;&nbsp;&nbsp;└─ <span class="kw">Runner</span> <span class="c1">运行器（runs-on）</span><br>
+ &nbsp;&nbsp;&nbsp;&nbsp;└─ <span class="kw">Step</span> <span class="c1">步骤 · 顺序执行</span><br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <span class="st">uses:</span> Action <span class="c1">或</span> <span class="st">run:</span> 命令
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="card reveal r4"><h3>因事件而动</h3><p class="muted">push / pull_request / schedule / workflow_dispatch 等触发运行。</p></div>
+            <div class="card reveal r5"><h3>并行 + 依赖</h3><p class="muted">多 Job 默认并行，用 <b>needs</b> 声明先后形成 DAG。</p></div>
+            <div class="card reveal r6"><h3>产出信号</h3><p class="muted">Actions 运行产生 <b>checks</b>,被 Ruleset 用作合并门禁。</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Actions</span><span>Workflow 概念</span></div>
+    </section>
+
+    <!-- ============ SLIDE 5 · CORE COMPONENTS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 02 · WORKFLOW</span><span class="pg">05 / 14</span></div>
+      <h2 class="reveal r1">Workflow <span class="cy">核心组件</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>组件</th><th>YAML 字段</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>Event</b> 事件</td><td class="k-cyan">on</td><td class="muted">决定工作流何时运行：push、pull_request、schedule、workflow_dispatch…</td></tr>
+            <tr class="reveal r3"><td><b>Job</b> 作业</td><td class="k-cyan">jobs</td><td class="muted">一组步骤的集合，默认并行；用 <b>needs</b> 声明依赖串行。</td></tr>
+            <tr class="reveal r4"><td><b>Runner</b> 运行器</td><td class="k-cyan">runs-on</td><td class="muted">执行 Job 的机器：GitHub 托管（ubuntu/windows/macos）或自托管。</td></tr>
+            <tr class="reveal r5"><td><b>Step</b> 步骤</td><td class="k-cyan">steps</td><td class="muted">Job 内顺序执行的最小单位；调用 Action 或跑 shell 命令。</td></tr>
+            <tr class="reveal r6"><td><b>Action</b> 动作</td><td class="k-cyan">uses</td><td class="muted">可复用单元（JS / Docker / Composite），通过 <b>with</b> 传参。</td></tr>
+            <tr class="reveal r7"><td><b>run</b> 命令</td><td class="k-cyan">run</td><td class="muted">直接执行 shell 命令，如 <b>npm ci &amp;&amp; npm test</b>。</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:26px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r8">
+          <span class="chip"><span class="n">+</span> env 环境变量</span>
+          <span class="chip"><span class="n">+</span> secrets 密钥</span>
+          <span class="chip"><span class="n">+</span> matrix 矩阵</span>
+          <span class="chip"><span class="n">+</span> if 条件</span>
+          <span class="chip"><span class="n">+</span> permissions 权限</span>
+          <span class="chip"><span class="n">+</span> concurrency 并发</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Actions</span><span>核心组件</span></div>
+    </section>
+
+    <!-- ============ SLIDE 6 · WORKFLOW EXAMPLE ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 02 · WORKFLOW</span><span class="pg">06 / 14</span></div>
+      <h2 class="reveal r1">完整示例 <span class="cy">ci.yml</span></h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1.25fr .75fr;gap:32px;align-items:start;">
+          <div class="code reveal r2" style="font-size:19px;line-height:1.5;">
+<span class="kw">name</span>: CI<br>
+<span class="kw">on</span>:<br>
+&nbsp;&nbsp;<span class="kw">pull_request</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;branches: [<span class="st">main</span>]<br>
+<span class="kw">permissions</span>:<br>
+&nbsp;&nbsp;contents: <span class="st">read</span><br>
+<span class="kw">jobs</span>:<br>
+&nbsp;&nbsp;<span class="gn">test</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;runs-on: <span class="st">ubuntu-latest</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;strategy:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matrix: { node: [<span class="st">18</span>, <span class="st">20</span>] }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="kw">uses</span>: <span class="st">actions/checkout@v4</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="kw">uses</span>: <span class="st">actions/setup-node@v4</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">with</span>: { node-version: <span class="st">${{ matrix.node }}</span> }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="kw">run</span>: npm ci<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="kw">run</span>: npm test
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="card reveal r3"><h3>on</h3><p class="muted">PR 到 main 时触发。</p></div>
+            <div class="card reveal r4"><h3>matrix</h3><p class="muted">Node 18 / 20 并行两套。</p></div>
+            <div class="card reveal r5"><h3>steps</h3><p class="muted">检出 → 装环境 → 装依赖 → 跑测试。</p></div>
+            <div class="card reveal r6" style="border-color:var(--green);"><h3>结果</h3><p class="muted">job 名 <b>test</b> 即状态检查 context。</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Actions</span><span>示例</span></div>
+    </section>
+
+    <!-- ============ SLIDE 7 · WHAT IS RULESET ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 03 · RULESET</span><span class="pg">07 / 14</span></div>
+      <h2 class="reveal r1">什么是 <span class="cy">Ruleset</span>（规则集）</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:26px;line-height:1.55;color:var(--dim);margin-bottom:28px;">
+          一套 <b>命名的规则列表</b>,控制人们如何与仓库中的 <b>分支 / 标签 / 推送</b> 交互。可在 <b class="k-green">Repo / Org / Enterprise</b> 三层级配置（每仓库 / 每组织最多 75 个）。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;margin-bottom:30px;">
+          <div class="card reveal r3"><h3>Branch 分支</h3><p class="muted">谁能 push、是否要 PR / 检查 / 签名、禁强推等。</p></div>
+          <div class="card reveal r4"><h3>Tag 标签</h3><p class="muted">谁能创建 / 删除 / 重命名标签，命名模式约束。</p></div>
+          <div class="card reveal r5"><h3>Push 推送</h3><p class="muted">按文件路径 / 大小 / 扩展名阻止推送（含 fork 网络）。</p></div>
+        </div>
+        <div class="card reveal r6" style="border-color:var(--green);">
+          <h3>相较 Branch Protection 的优势</h3>
+          <p class="muted"><b>可叠加</b>多个同时生效 · 有<b>状态</b>（active / evaluate / disabled）无需删除即可开关 · 任何读权限者<b>可见</b> · 支持<b>组织 / 企业级</b>统一下发。</p>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Rules</span><span>Ruleset 概念</span></div>
+    </section>
+
+    <!-- ============ SLIDE 8 · COMMON CONFIG ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 03 · RULESET</span><span class="pg">08 / 14</span></div>
+      <h2 class="reveal r1">通用配置项 <span class="cy">common config</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>配置项</th><th>API 字段</th><th>取值 / 说明</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>目标类型</b></td><td class="k-cyan">target</td><td class="muted">branch / tag / push</td></tr>
+            <tr class="reveal r3"><td><b>强制级别</b></td><td class="k-cyan">enforcement</td><td class="muted"><b>active</b> 强制 · <b>evaluate</b> 仅评估（需 Enterprise）· <b>disabled</b> 关闭</td></tr>
+            <tr class="reveal r4"><td><b>目标条件</b></td><td class="k-cyan">conditions.ref_name</td><td class="muted">include / exclude，支持 fnmatch、~DEFAULT_BRANCH、~ALL</td></tr>
+            <tr class="reveal r5"><td><b>绕过名单</b></td><td class="k-cyan">bypass_actors[]</td><td class="muted">actor_type: <b>Integration</b>(App) / Team / User / RepositoryRole / OrganizationAdmin / DeployKey</td></tr>
+            <tr class="reveal r6"><td><b>绕过模式</b></td><td class="k-cyan">bypass_mode</td><td class="muted">always（总是）/ pull_request（仅 PR）/ exempt（不跑规则且不记审计）</td></tr>
+          </tbody>
+        </table>
+        <div class="card reveal r7" style="margin-top:24px;">
+          <h3>⚠ 关键</h3>
+          <p class="muted">更新时 <b>bypass_actors 是整体替换</b>，非增量。正确流程：<b class="k-green">GET → 本地改数组 → PUT 整个数组写回</b>，否则会误删已有项。</p>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Rules</span><span>通用配置</span></div>
+    </section>
+
+    <!-- ============ SLIDE 9 · AVAILABLE RULES ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 03 · RULESET</span><span class="pg">09 / 14</span></div>
+      <h2 class="reveal r1">可用规则 <span class="cy">按 target 分类</span></h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:22px;">
+          <div class="card reveal r2"><h3>Branch · 操作限制</h3><p class="muted">creation · update · deletion(默认开) · <b>non_fast_forward</b> 禁强推 · required_linear_history · required_signatures 签名</p></div>
+          <div class="card reveal r3"><h3>Branch · 审查与质量</h3><p class="muted"><b>pull_request</b> 审批 · required_status_checks · required_deployments · workflows · merge_queue · code_scanning · copilot_code_review</p></div>
+          <div class="card reveal r4"><h3>Tag · 标签</h3><p class="muted">creation / update / deletion · non_fast_forward · required_signatures · <b>tag_name_pattern</b> 命名模式</p></div>
+          <div class="card reveal r5"><h3>Push · 推送（private/internal）</h3><p class="muted"><b>file_path_restriction</b> 路径 · max_file_path_length 长度 · file_extension_restriction 扩展名 · max_file_size 大小</p></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r6">
+          <span class="chip">模式规则均支持 <span class="n">starts_with / ends_with / contains / regex</span></span>
+          <span class="chip">commit_message / author_email / committer_email · branch_name</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Rules</span><span>可用规则</span></div>
+    </section>
+
+    <!-- ============ SLIDE 10 · CHECKS & DEPLOY ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 04 · CHECKS &amp; DEPLOY</span><span class="pg">10 / 14</span></div>
+      <h2 class="reveal r1">状态检查与<span class="cy">部署</span>门禁</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:24px;color:var(--dim);margin-bottom:26px;line-height:1.5;">合并 / 更新到目标分支前，强制先通过以下四类验证之一或组合：</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>required_status_checks</h3><p class="muted">必需检查全绿才可合并。<b>strict</b>=分支须先更新到最新；可用 <b>integration_id</b> 限定只信任某 App。</p></div>
+          <div class="card reveal r4"><h3>required_deployments</h3><p class="muted">合并前须成功部署到指定环境（如 <b>staging</b>）,环境需预先在 Settings 定义。</p></div>
+          <div class="card reveal r5"><h3>workflows</h3><p class="muted">锁定<b>具体 workflow 文件</b>(path + repository_id + ref/sha)必须通过，防同名检查绕过。</p></div>
+          <div class="card reveal r6"><h3>merge_queue</h3><p class="muted">经合并队列排队、基于最新基分支验证后再合并。<b>ALLGREEN / HEADGREEN</b> 分组策略。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Rules</span><span>检查与部署</span></div>
+    </section>
+
+    <!-- ============ SLIDE 11 · WHAT DO CHECKS CHECK ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 04 · CHECKS &amp; DEPLOY</span><span class="pg">11 / 14</span></div>
+      <h2 class="reveal r1">状态检查<span class="cy">到底检查什么</span></h2>
+      <div class="body">
+        <div class="card reveal r2" style="border-color:var(--amber);margin-bottom:26px;">
+          <h3 style="color:var(--amber);">核心认知</h3>
+          <p class="muted">Ruleset <b>本身不定义检查内容</b>。它只强制"名为 X 的检查必须为 <b class="k-green">passing</b>"；<b>检查什么由产生它的工具决定</b>（写在你的 workflow / CI 里）。</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>状态从哪来</h3><p class="muted"><b>Checks</b>：GitHub App / Actions 产生，有行级注释；<b>Commit statuses</b>：外部 CI 经 status API 上报。</p></div>
+          <div class="card reveal r4"><h3>常见"内容"</h3><p class="muted">构建 · 单测 / 集成测试 · Lint / 类型检查 · 覆盖率 · CodeQL 安全扫描 · 外部 CI · 自定义校验。</p></div>
+        </div>
+        <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r5"><h3 class="k-red">坑 1 · 名字不匹配</h3><p class="muted">ruleset 的 <b>context</b> 必须与上报的检查名完全一致，否则永远"等待"。</p></div>
+          <div class="card reveal r6"><h3 class="k-red">坑 2 · skipped=Success</h3><p class="muted">被跳过的任务报告为 Success，<b>即使必需也不阻止合并</b>。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Rules</span><span>状态检查本质</span></div>
+    </section>
+
+    <!-- ============ SLIDE 12 · BYPASS: ACTOR vs REQUEST ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 05 · BYPASS</span><span class="pg">12 / 14</span></div>
+      <h2 class="reveal r1">直接绕过 vs <span class="cy">Bypass Request</span> 审批流</h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;">
+          <div class="card reveal r2"><h3>Bypass Actor · 直接绕过</h3>
+            <p class="muted" style="margin-bottom:14px;">在 bypass list 且 always / pull_request → 操作<b>直接放行</b>,无需申请。</p>
+            <p class="muted"><span class="k-green">"你本来就有钥匙,直接进"</span></p>
+          </div>
+          <div class="card reveal r3" style="border-color:var(--amber);"><h3 style="color:var(--amber);">Bypass Request · 委派审批</h3>
+            <p class="muted" style="margin-bottom:14px;">无直接权限者被拦截 → 提交<b>申请</b> → 审核人批准后才继续。</p>
+            <p class="muted"><span class="k-amber">"没钥匙,按门铃申请放行"</span></p>
+          </div>
+        </div>
+        <div class="reveal r4" style="margin-top:32px;">
+          <div class="flow">
+            <div class="fnode"><div class="ic">×</div><div class="nm">被拦截</div><div class="ds">操作命中规则</div></div>
+            <div class="farr" style="color:var(--amber);">→</div>
+            <div class="fnode" style="border-color:var(--amber);"><div class="ic" style="color:var(--amber);">REQ</div><div class="nm">生成 Request</div><div class="ds">status = open</div></div>
+            <div class="farr" style="color:var(--amber);">→</div>
+            <div class="fnode"><div class="ic">👥</div><div class="nm">审核人</div><div class="ds">team / role / user</div></div>
+            <div class="farr" style="color:var(--amber);">→</div>
+            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">✓/✗</div><div class="nm">批准 / 拒绝</div><div class="ds">超期则 expired</div></div>
+          </div>
+        </div>
+        <p class="reveal r5 muted" style="margin-top:26px;font-size:22px;">委派审批主要用于 <b>Secret scanning 推送保护</b> 与 <b>push ruleset</b>；可在 Repo / Org / Enterprise 启用，上级配置会覆盖下级。</p>
+      </div>
+      <div class="foot"><span>GitHub · Rules</span><span>Bypass 治理</span></div>
+    </section>
+
+    <!-- ============ SLIDE 13 · GITHUB APP & BYPASS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 05 · BYPASS</span><span class="pg">13 / 14</span></div>
+      <h2 class="reveal r1">GitHub App 与 Bypass 的<span class="cy">能力边界</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>想做的事</th><th>能否</th><th>说明 / API</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>直接绕过规则</b>（bypass actor）</td><td class="k-green">✓ 可以</td><td class="muted">以 <b>actor_type: Integration</b> 加入 bypass list；<b>PUT .../rulesets/&#123;id&#125;</b></td></tr>
+            <tr class="reveal r3"><td><b>审批 / 拒绝</b> bypass request</td><td class="k-red">✗ 不行</td><td class="muted">审核人只能 team / role / user；<b>无审批写入端点</b>,仅 UI / 通知</td></tr>
+            <tr class="reveal r4"><td><b>列出 / 监控</b> bypass request</td><td class="k-green">✓ 只读</td><td class="muted"><b>GET /orgs/&#123;org&#125;/bypass-requests/push-rules</b></td></tr>
+          </tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px;">
+          <div class="card reveal r5"><h3>⚠ 仅安装不够</h3><p class="muted">App 装到 Enterprise / Org 不会自动获得绕过权限，必须在对应 ruleset 的 bypass list 中<b>显式添加</b>。</p></div>
+          <div class="card reveal r6" style="border-color:var(--green);"><h3>自动放行的正解</h3><p class="muted">不要让 App"审批别人"；应把 App 设为 <b>bypass actor</b>,由它<b>自己执行</b>操作绕过规则。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Apps</span><span>能力边界</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AGENTIC 1 · CONCEPT ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">14 / 17</span></div>
+      <h2 class="reveal r1">什么是 GitHub Agentic <span class="cy">Workflow</span></h2>
+      <div class="body">
+        <div class="card reveal r2" style="border-color:var(--amber);">
+          <h3 style="color:var(--amber);">一句话定义 · public preview</h3>
+          <p class="muted">用<b>自然语言（Markdown）</b>编写、由 <b>AI 编码智能体</b>在 <b>GitHub Actions</b> 里执行的仓库自动化——给它一段指令，它自己理解上下文、做决策、执行动作。</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:26px;">
+          <div class="card reveal r3"><h3>传统 Actions</h3><p class="muted">写死的 <b>if-then</b> 步骤，按预定义流程逐条执行。</p></div>
+          <div class="card reveal r4" style="border-color:var(--green);"><h3>Agentic Workflow</h3><p class="muted">自然语言指令 + <b>上下文推理</b>；护栏仍由 frontmatter 定义。</p></div>
+        </div>
+        <div style="margin-top:28px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r5">
+          <span class="chip"><span class="n">▹</span> Issue 自动分诊 / 打标签</span>
+          <span class="chip"><span class="n">▹</span> 调查 CI 失败并建议修复</span>
+          <span class="chip"><span class="n">▹</span> 每日 / 每周状态报告</span>
+          <span class="chip"><span class="n">▹</span> 文档随代码同步</span>
+          <span class="chip"><span class="n">▹</span> 提升测试覆盖率</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>概念</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AGENTIC 2 · HOW IT WORKS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">15 / 17</span></div>
+      <h2 class="reveal r1">一个 .md 文件 · <span class="cy">Frontmatter + 指令</span></h2>
+      <div class="body">
+        <div class="reveal r2" style="margin-bottom:26px;">
+          <div class="flow">
+            <div class="fnode"><div class="ic">1</div><div class="nm">写 .md</div><div class="ds">frontmatter + 自然语言</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">2</div><div class="nm">编译</div><div class="ds">gh-aw → 加固 .lock.yml</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">3</div><div class="nm">提交推送</div><div class="ds">两文件入默认分支</div></div>
+            <div class="farr">→</div>
+            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">4</div><div class="nm">运行</div><div class="ds">触发器 / 网页 / gh CLI</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start;">
+          <div class="code reveal r3" style="font-size:19px;line-height:1.5;">
+<span class="c1">---</span><br>
+<span class="kw">on</span>: daily&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1"># 护栏: 触发器</span><br>
+<span class="kw">permissions</span>:<br>
+&nbsp;&nbsp;contents: <span class="st">read</span><br>
+&nbsp;&nbsp;issues: <span class="st">read</span><br>
+<span class="kw">engine</span>: <span class="gn">copilot</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1"># 或 claude/codex/gemini</span><br>
+<span class="kw">safe-outputs</span>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c1"># 仅允许的写操作</span><br>
+&nbsp;&nbsp;create-issue:<br>
+<span class="c1">---</span><br>
+<br>
+<span class="gn"># Daily Repo Status Report</span><br>
+回顾最近 24h 的 issue / PR / 讨论,<br>
+生成一个 issue 总结变更与下一步。
+          </div>
+          <div style="display:flex;flex-direction:column;gap:22px;">
+            <div class="card reveal r4"><h3>Frontmatter</h3><p class="muted"><code>---</code> 之间的 YAML 护栏：<b>何时触发、什么权限、允许哪些写操作</b>。</p></div>
+            <div class="card reveal r5" style="border-color:var(--green);"><h3>Markdown Body</h3><p class="muted">智能体要遵循的<b>自然语言指令</b>。</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>工作机制</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AGENTIC 3 · SECURITY & ENGINES ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">16 / 17</span></div>
+      <h2 class="reveal r1">安全护栏 · 引擎 · 与 <span class="cy">Ruleset</span> 联动</h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r2"><h3>默认只读</h3><p class="muted">仓库权限与 token <b>默认只读</b>，除非显式授权。</p></div>
+          <div class="card reveal r3"><h3>Safe outputs</h3><p class="muted">建 issue / 评论 / 开 PR 等写操作只能走声明的 <b>safe-outputs</b>，并经威胁检测。</p></div>
+          <div class="card reveal r4"><h3>密钥隔离</h3><p class="muted">敏感凭证放在隔离的下游 job，<b>不暴露</b>给智能体运行时。</p></div>
+          <div class="card reveal r5"><h3>人在环中 · 防火墙</h3><p class="muted">智能体在 firewalled 容器运行，只产出<b>待审查</b>结果，审批 / 合并仍由你控制。</p></div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r6">
+          <span class="chip"><span class="n">engine</span> Copilot（默认）</span>
+          <span class="chip"><span class="n">·</span> Anthropic Claude</span>
+          <span class="chip"><span class="n">·</span> OpenAI Codex</span>
+          <span class="chip"><span class="n">·</span> Google Gemini</span>
+        </div>
+        <p class="reveal r7 muted" style="margin-top:22px;font-size:22px;">与 <b>Ruleset</b> 联动：智能体开的 PR 一样要过状态检查与必需审查；<b>safe-outputs</b> + <b>Ruleset</b> 形成双层护栏——能干活但不越权。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>安全与引擎</span></div>
+    </section>
+
+    <!-- ============ SLIDE 14 · TAKEAWAYS / CLOSING ============ -->
+    <section class="slide closing">
+      <div class="shead reveal r1"><span class="kick">// SUMMARY</span><span class="pg">14 / 14</span></div>
+      <h2 class="reveal r1">关键 <span class="cy">Takeaways</span></h2>
+      <div class="body">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card reveal r2"><h3>01 · 分工</h3><p><b>Workflow</b> 负责自动执行并产出检查信号；<b>Ruleset</b> 负责设门槛约束交互。</p></div>
+          <div class="card reveal r3"><h3>02 · Ruleset 分层</h3><p>Repo / Org / Enterprise 三层可叠加；enforcement 支持 <b>evaluate</b> 先观察再强制。</p></div>
+          <div class="card reveal r4"><h3>03 · 检查本质</h3><p>Ruleset 只管"哪些名字必须绿"，真正检查逻辑在你的 workflow / CI 里；注意名字匹配与 skipped=Success。</p></div>
+          <div class="card reveal r5" style="border-color:var(--green);"><h3>04 · Bypass 边界</h3><p>App 可作 <b>bypass actor 直接绕过</b> 与 <b>只读监控</b>,但<b>不能审批</b> bypass request。</p></div>
+          <div class="card reveal r6"><h3>05 · Agentic Workflow</h3><p>自然语言 Markdown + AI 智能体跑在 Actions 上；<b>safe-outputs</b> + <b>Ruleset</b> 双层护栏。</p></div>
+        </div>
+        <p class="reveal r7" style="margin-top:16px;font-family:var(--font-mono);font-size:22px;color:var(--green);">$ 谢谢观看 — Q&amp;A<span class="cursor"></span></p>
+      </div>
+      <div class="foot"><span>GitHub · SDLC</span><span>END</span></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- progress bar + edit affordance -->
+<div class="pbar" id="pbar"></div>
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="编辑模式 (E)">✏️</button>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   Keyboard / wheel / touch navigation + scaling
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.i=0;
+    this.stage=document.getElementById('deckStage');
+    this.pbar=document.getElementById('pbar');
+    this.scale();this.keys();this.touch();this.wheel();
+    this.paginate();
+    addEventListener('resize',()=>this.scale());
+    this.show(0);
+  }
+  paginate(){
+    const t=this.slides.length;
+    this.slides.forEach((s,k)=>{
+      const pg=s.querySelector('.pg');
+      if(pg)pg.textContent=String(k+1).padStart(2,'0')+' / '+String(t).padStart(2,'0');
+    });
+  }
+  scale(){
+    const f=Math.min(innerWidth/1920,innerHeight/1080);
+    const x=(innerWidth-1920*f)/2, y=(innerHeight-1080*f)/2;
+    this.stage.style.transform=`translate(${x}px,${y}px) scale(${f})`;
+  }
+  show(n){
+    this.i=Math.max(0,Math.min(n,this.slides.length-1));
+    this.slides.forEach((s,k)=>{s.classList.toggle('active',k===this.i);s.classList.toggle('visible',k===this.i);});
+    this.pbar.style.width=((this.i+1)/this.slides.length*100)+'%';
+  }
+  next(){this.show(this.i+1);} prev(){this.show(this.i-1);}
+  keys(){addEventListener('keydown',e=>{
+    if(e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true')return;
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();this.next();}
+    if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+    if(e.key==='Home')this.show(0); if(e.key==='End')this.show(this.slides.length-1);
+  });}
+  wheel(){let l=0;addEventListener('wheel',e=>{const t=Date.now();if(t-l<700)return;if(Math.abs(e.deltaY)<24)return;l=t;e.deltaY>0?this.next():this.prev();},{passive:true});}
+  touch(){let x0=null;addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+    addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>60)dx<0?this.next():this.prev();x0=null;},{passive:true});}
+}
+const deck=new SlidePresentation();
+
+/* ===========================================
+   INLINE EDIT MODE (hover hotzone / E key)
+   Auto-saves edits to localStorage
+   =========================================== */
+const editor={
+  isActive:false,
+  toggleEditMode(){
+    this.isActive=!this.isActive;
+    const btn=document.getElementById('editToggle');
+    btn.classList.toggle('active',this.isActive);btn.classList.toggle('show',this.isActive);
+    document.querySelectorAll('h1,h2,h3,p,td,th,.nm,.ds,.chip,.term,.subtitle,.code').forEach(el=>{
+      el.contentEditable=this.isActive;
+    });
+    if(!this.isActive)this.save();
+  },
+  save(){try{localStorage.setItem('gh-deck-html',document.querySelector('.deck-stage').innerHTML);}catch(e){}}
+};
+document.getElementById('editToggle').addEventListener('click',()=>editor.toggleEditMode());
+const hz=document.getElementById('editHotzone'),bt=document.getElementById('editToggle');let ht=null;
+hz.addEventListener('mouseenter',()=>{clearTimeout(ht);bt.classList.add('show');});
+hz.addEventListener('mouseleave',()=>{ht=setTimeout(()=>{if(!editor.isActive)bt.classList.remove('show');},400);});
+bt.addEventListener('mouseenter',()=>clearTimeout(ht));
+bt.addEventListener('mouseleave',()=>{ht=setTimeout(()=>{if(!editor.isActive)bt.classList.remove('show');},400);});
+hz.addEventListener('click',()=>editor.toggleEditMode());
+addEventListener('keydown',e=>{if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true'))editor.toggleEditMode();});
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();editor.save();}});
+</script>
+</body>
+</html>
