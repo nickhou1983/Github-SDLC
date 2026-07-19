@@ -361,6 +361,32 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Copilot</span><span>代码评审</span></div>
     </section>
 
+    <!-- ============ SLIDE · AI 1b · CODE REVIEW WORKFLOW / EFFORT / FIX ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">21 / 27</span></div>
+      <h2 class="reveal r1">Code Review <span class="cy">深入</span> · 流程 · 力度 · 一键修复</h2>
+      <div class="body">
+        <div class="reveal r2" style="margin-bottom:26px;">
+          <div class="flow">
+            <div class="fnode"><div class="ic">1</div><div class="nm">发起评审</div><div class="ds">手动 / 自动 / API</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">2</div><div class="nm">上下文分析</div><div class="ds">Actions runner 读全仓库 · 多角度</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">3</div><div class="nm">Comment 评审</div><div class="ds">附建议 · 不阻塞合并</div></div>
+            <div class="farr">→</div>
+            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">4</div><div class="nm">一键修复</div><div class="ds">apply / Fix with Copilot</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>力度 · Low（默认）</h3><p class="muted">快速、针对性反馈：常见 <b>bug / 安全漏洞 / 风格</b>不一致；例行改动首选。</p></div>
+          <div class="card reveal r4"><h3>力度 · Medium（preview）</h3><p class="muted">路由到<b>更高推理模型</b>、更长分析：复杂逻辑 / 安全敏感 / <b>跨服务</b>变更；更耗额度。</p></div>
+          <div class="card reveal r5" style="border-color:var(--green);"><h3>Fix with Copilot</h3><p class="muted">建议可一键 apply（单条 / 成组）；或点 <b>Fix with Copilot</b> 交 <b>Cloud Agent</b> → 新建修复 PR 或本 PR 加提交。</p></div>
+        </div>
+        <p class="reveal r6 muted" style="margin-top:24px;font-size:22px;">Copilot 只留 <b>Comment</b> 评审（不 Approve、<b>不阻塞合并</b>）；推送新提交后<b>默认不自动复审</b>，需 <b>Re-request</b> 或开启“审查新推送”。</p>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>代码评审 · 深入</span></div>
+    </section>
+
     <!-- ============ SLIDE · AI 2 · AGENT MERGE ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">21 / 22</span></div>
