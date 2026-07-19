@@ -157,6 +157,14 @@ tr td:first-child{color:var(--text-hi);}
 .edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
 .edit-toggle.active{border-color:var(--green);color:var(--green);}
 [contenteditable="true"]{outline:2px dashed var(--green);outline-offset:4px;border-radius:4px;}
+/* fullscreen playback toggle (top-right, auto-hide on idle) */
+.fs-toggle{position:fixed;top:18px;right:18px;background:var(--panel);color:var(--text);border:1px solid var(--line);
+  border-radius:10px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s ease,color .2s ease,border-color .2s ease;z-index:10001;cursor:pointer;}
+.fs-toggle.show{opacity:.5;pointer-events:auto;}
+.fs-toggle.show:hover{opacity:1;border-color:var(--green);color:var(--green);}
+.fs-toggle.active{border-color:var(--green);color:var(--green);}
+.fs-toggle svg{display:block;}
 
 /* progress */
 .pbar{position:fixed;left:0;bottom:0;height:3px;background:var(--green);z-index:1000;transition:width .4s ease;}
@@ -700,6 +708,7 @@ tr td:first-child{color:var(--text-hi);}
 <div class="pbar" id="pbar"></div>
 <div class="edit-hotzone" id="editHotzone"></div>
 <button class="edit-toggle" id="editToggle" title="编辑模式 (E)">✏️</button>
+<button class="fs-toggle" id="fsToggle" title="全屏播放 (F)" aria-label="全屏播放"></button>
 
 <script>
 /* ===========================================
@@ -773,6 +782,44 @@ bt.addEventListener('mouseleave',()=>{ht=setTimeout(()=>{if(!editor.isActive)bt.
 hz.addEventListener('click',()=>editor.toggleEditMode());
 addEventListener('keydown',e=>{if((e.key==='e'||e.key==='E')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true'))editor.toggleEditMode();});
 addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();editor.save();}});
+
+/* ===========================================
+   FULLSCREEN PLAYBACK (button / F key)
+   Enters browser fullscreen so the 16:9 stage
+   fills the whole screen for presenting.
+   =========================================== */
+const fsBtn=document.getElementById('fsToggle');
+const ICON_EXPAND='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><polyline points="21 15 21 21 15 21"/><polyline points="3 9 3 3 9 3"/></svg>';
+const ICON_COMPRESS='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement;}
+function toggleFullscreen(){
+  const el=document.documentElement;
+  if(!fsElement()){(el.requestFullscreen||el.webkitRequestFullscreen).call(el);}
+  else{(document.exitFullscreen||document.webkitExitFullscreen).call(document);}
+}
+function syncFsUI(){
+  const on=!!fsElement();
+  fsBtn.innerHTML=on?ICON_COMPRESS:ICON_EXPAND;
+  fsBtn.classList.toggle('active',on);
+  fsBtn.title=on?'退出全屏 (F / Esc)':'全屏播放 (F)';
+  deck.scale();
+}
+fsBtn.addEventListener('click',toggleFullscreen);
+document.addEventListener('fullscreenchange',syncFsUI);
+document.addEventListener('webkitfullscreenchange',syncFsUI);
+addEventListener('keydown',e=>{if((e.key==='f'||e.key==='F')&&!(e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true')){e.preventDefault();toggleFullscreen();}});
+/* reveal on mouse movement, auto-hide after idle (player-style) */
+let fsIdle=null;
+function revealFsBtn(){
+  fsBtn.classList.add('show');
+  clearTimeout(fsIdle);
+  fsIdle=setTimeout(()=>{if(!fsBtn.matches(':hover'))fsBtn.classList.remove('show');},2500);
+}
+addEventListener('mousemove',revealFsBtn);
+fsBtn.addEventListener('mouseenter',()=>clearTimeout(fsIdle));
+fsBtn.addEventListener('mouseleave',revealFsBtn);
+syncFsUI();
+revealFsBtn();
 </script>
 </body>
 </html>
