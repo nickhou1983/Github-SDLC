@@ -789,6 +789,74 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>场景差异</span></div>
     </section>
 
+    <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
+      <h2 class="reveal r1">实战演示仓库 <span class="cy">TaskFlow</span> · 整体设计</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:26px;">
+          以极简 <b>FastAPI</b> 任务 API 为载体，串联 Agentic SDLC 全流程 —— <b class="k-green">载体极简、留白刻意、真实可复现</b>。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:18px;">
+          <div class="card reveal r3"><h3>① 应用层</h3><p class="muted">极简 API：<code>Task(id/title/done)</code> · 6 路由 · <b>内存存储无 DB</b> · 8 个基线测试。</p></div>
+          <div class="card reveal r4"><h3>② AI 自动化层</h3><p class="muted"><b>gh-aw</b>：<code>issue-triage</code> + <code>ci-doctor</code>，用<b>自然语言 .md</b> 写、编译成 lock。</p></div>
+          <div class="card reveal r5"><h3>③ 治理层</h3><p class="muted">平台强制：<code>ci.yml</code>(Lint+Test) + <b>Ruleset</b>(PR / 检查 / AI 评审 / CodeQL)。</p></div>
+          <div class="card reveal r6"><h3>④ 约束层</h3><p class="muted"><code>copilot-instructions.md</code>：编码规范 + 评审重点，<b>约束 Agent 产出</b>。</p></div>
+        </div>
+        <div style="margin-top:26px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r7">
+          <span class="chip"><span class="n">·</span> priority / due_date 故意留作 Issue</span>
+          <span class="chip"><span class="n">·</span> fallback/* 预置分支 · Agent 卡住不翻车</span>
+          <span class="chip"><span class="n">·</span> Ruleset / CI / AI 评审 真实生效</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Agentic SDLC</span><span>整体设计</span></div>
+    </section>
+
+    <!-- ============ SLIDE · DEMO 2 · CAPABILITY MAPPING ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">19 / 30</span></div>
+      <h2 class="reveal r1">六大能力 · <span class="cy">载体映射</span>（7 幕故事）</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>幕</th><th>能力</th><th>演示载体</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>1</b></td><td class="k-green">Agentic Workflow</td><td class="muted">新建 Issue → <code>issue-triage</code> 自动打标签 + AI 评论</td></tr>
+            <tr class="reveal r3"><td><b>2</b></td><td class="k-green">Coding Agent</td><td class="muted">Issue #1(priority)指派 Copilot → 开分支写码提 PR</td></tr>
+            <tr class="reveal r4"><td><b>3</b></td><td class="k-green">GitHub Actions</td><td class="muted">PR 触发 <code>ci.yml</code> 的 Lint + Test 双检查</td></tr>
+            <tr class="reveal r5"><td><b>4</b></td><td class="k-green">PR Ruleset</td><td class="muted">直接 push main 被 <code>GH013</code> 拒绝</td></tr>
+            <tr class="reveal r6"><td><b>5</b></td><td class="k-green">Code Review</td><td class="muted">Ruleset <b>强制</b>自动请求评审 → Agent 响应修复</td></tr>
+            <tr class="reveal r7"><td><b>6</b></td><td class="k-green">Agent Merge</td><td class="muted">Issue #1/#2 并行改 <code>Task</code> → 冲突 → AI 语义合并</td></tr>
+            <tr class="reveal r8"><td><b>7</b></td><td class="k-amber">Agentic ②（彩蛋）</td><td class="muted">改错状态码 → CI 红 → <code>ci-doctor</code> 诊断根因</td></tr>
+          </tbody>
+        </table>
+        <p class="reveal r8 muted" style="margin-top:22px;font-size:22px;">🎯 巧妙处：Issue #1 与 #2 <b>都改 <code>app/models.py</code> 的 Task 模型</b> —— 为第 6 幕 Agent Merge <b class="k-green">人为制造必然冲突</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic SDLC</span><span>能力映射</span></div>
+    </section>
+
+    <!-- ============ SLIDE · DEMO 3 · GOVERNANCE LAYER ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">20 / 30</span></div>
+      <h2 class="reveal r1">治理层 · Ruleset <span class="cy">Protect main</span>（实配 7 条）</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>规则</th><th>参数</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>Pull Request</b></td><td class="muted">需 <b>1 个 approval</b>，禁止直接 push main</td></tr>
+            <tr class="reveal r3"><td><b>Status Checks</b></td><td class="muted"><b>Lint + Test + CodeQL</b> 三项必过</td></tr>
+            <tr class="reveal r4"><td><b>Copilot Code Review</b></td><td class="muted"><code>review_on_push</code> + <b>草稿 PR 也评审</b></td></tr>
+            <tr class="reveal r5"><td><b>Code Scanning</b></td><td class="muted">CodeQL：error 级 + <b>high+ 安全告警</b>阻断</td></tr>
+            <tr class="reveal r6"><td><b>Code Quality</b></td><td class="muted"><code>severity = errors</code>（较新门禁）</td></tr>
+            <tr class="reveal r7"><td><b>Deletion / Non-FF</b></td><td class="muted">禁删 main、禁强推</td></tr>
+          </tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px;">
+          <div class="card reveal r8"><h3>gh-aw 安全设计</h3><p class="muted">主 job <b>全只读</b> + <b>safe-outputs 白名单</b>(仅加标签 / 评论) + 网络隔离 + 工具受限。</p></div>
+          <div class="card reveal r8" style="border-color:var(--green);"><h3>关键洞察</h3><p class="muted">规则即代码 —— <b>人和 AI 都绕不过</b>；文档写 3 条，<b class="k-green">实际配了 7 条</b>，治理比宣讲更扎实。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Agentic SDLC</span><span>治理层</span></div>
+    </section>
+
     <!-- ============ SLIDE 14 · TAKEAWAYS / CLOSING ============ -->
     <section class="slide closing">
       <div class="shead reveal r1"><span class="kick">// SUMMARY</span><span class="pg">14 / 14</span></div>
