@@ -559,6 +559,29 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>安全与引擎</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 4 · USE CASE DIFF ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">17 / 18</span></div>
+      <h2 class="reveal r1">Agentic Workflow vs 传统 Action · <span class="cy">场景差异</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>维度</th><th class="k-cyan">传统 Action</th><th class="k-green">Agentic Workflow</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>任务定义</b></td><td class="muted">步骤写死、可枚举</td><td class="muted">目标导向，步骤事先不确定</td></tr>
+            <tr class="reveal r3"><td><b>执行方式</b></td><td class="muted">机器照脚本跑，确定性可复现</td><td class="muted">AI 理解上下文、自行规划推理</td></tr>
+            <tr class="reveal r4"><td><b>护栏</b></td><td class="muted"><code>permissions</code> 声明权限</td><td class="muted">默认只读 + <b>safe-outputs</b> + 威胁检测 + 防火墙</td></tr>
+            <tr class="reveal r5"><td><b>计费</b></td><td class="muted">仅 Actions 分钟数</td><td class="muted">Actions 分钟数 <b>+ AI 推理（AIC）</b></td></tr>
+            <tr class="reveal r6"><td><b>产出</b></td><td class="muted">最终结果（如已部署）</td><td class="muted"><b>待审查</b>的 issue / PR,仍过 Ruleset</td></tr>
+          </tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px;">
+          <div class="card reveal r7"><h3 class="k-cyan" style="color:var(--cyan);">选传统 Action</h3><p class="muted">构建 / 测试 / Lint · 发布部署 · 格式检查 · 定时备份——<b>步骤已知、要可复现与合规</b>。</p></div>
+          <div class="card reveal r8" style="border-color:var(--green);"><h3>选 Agentic Workflow</h3><p class="muted">Issue 分诊 · 调查 CI 失败 · 状态报告 · 文档同步 · 重构迁移——<b>目标明确但需阅读理解与判断</b>。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>场景差异</span></div>
+    </section>
+
     <!-- ============ SLIDE 14 · TAKEAWAYS / CLOSING ============ -->
     <section class="slide closing">
       <div class="shead reveal r1"><span class="kick">// SUMMARY</span><span class="pg">14 / 14</span></div>
