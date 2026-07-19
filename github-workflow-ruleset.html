@@ -185,11 +185,11 @@ tr td:first-child{color:var(--text-hi);}
       <h1 class="reveal r3">GitHub <span class="accent">Workflow</span><br>&amp; Ruleset</h1>
       <div class="subtitle reveal r4">从 <b>CI/CD 自动化</b> 到 <b>分支治理</b> 与 <b>Bypass 审批</b> 的完整实践</div>
       <div class="chips reveal r5">
-        <span class="chip"><span class="n">01</span> Workflow</span>
-        <span class="chip"><span class="n">02</span> Ruleset</span>
-        <span class="chip"><span class="n">03</span> Bypass</span>
-        <span class="chip"><span class="n">04</span> Agentic Workflow</span>
-        <span class="chip"><span class="n">05</span> AI 交付链路</span>
+        <span class="chip"><span class="n">01</span> AI 交付链路</span>
+        <span class="chip"><span class="n">02</span> Workflow</span>
+        <span class="chip"><span class="n">03</span> Ruleset</span>
+        <span class="chip"><span class="n">04</span> Bypass</span>
+        <span class="chip"><span class="n">05</span> Agentic Workflow</span>
       </div>
       <div class="footer reveal r6"><span>TEACHING · 技术教程</span><span><span class="pg">01 / 17</span><span class="cursor"></span></span></div>
     </section>
@@ -200,12 +200,12 @@ tr td:first-child{color:var(--text-hi);}
       <h2 class="reveal r1">本次内容 <span class="cy">目录</span></h2>
       <div class="body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;">
-          <div class="card reveal r2"><h3>PART 1 · Workflow</h3><p><span class="muted">GitHub Actions 工作流是什么，核心组件（Event / Job / Runner / Step / Action）与完整示例。</span></p></div>
-          <div class="card reveal r3"><h3>PART 2 · Ruleset</h3><p><span class="muted">规则集概念、三种 target、通用配置项与各类可用规则详解。</span></p></div>
-          <div class="card reveal r4"><h3>PART 3 · Checks &amp; Deploy</h3><p><span class="muted">状态检查、部署、Workflow 门禁与合并队列——合并前的质量关卡。</span></p></div>
-          <div class="card reveal r5"><h3>PART 4 · Bypass 治理</h3><p><span class="muted">直接绕过 vs 委派审批流，以及 GitHub App 的能力边界与 REST API。</span></p></div>
-          <div class="card reveal r6"><h3>PART 5 · Agentic Workflow</h3><p><span class="muted">自然语言 Markdown + AI 智能体在 Actions 中执行的仓库自动化：机制与安全护栏。</span></p></div>
-          <div class="card reveal r6" style="grid-column:1/-1;border-color:var(--green);"><h3>PART 6 · AI 辅助交付链路</h3><p><span class="muted">Coding Agent 自主写码开 PR → Code Review 评审 → Agent Merge 合并；三段接力，人在关键节点把关。</span></p></div>
+          <div class="card reveal r2" style="border-color:var(--green);"><h3>PART 1 · AI 辅助交付链路</h3><p><span class="muted">Coding Agent 自主写码开 PR → Code Review 评审 → Agent Merge 合并；三段接力，人在关键节点把关。</span></p></div>
+          <div class="card reveal r3"><h3>PART 2 · Workflow</h3><p><span class="muted">GitHub Actions 工作流是什么，核心组件（Event / Job / Runner / Step / Action）与完整示例。</span></p></div>
+          <div class="card reveal r4"><h3>PART 3 · Ruleset</h3><p><span class="muted">规则集概念、三种 target、通用配置项与各类可用规则详解。</span></p></div>
+          <div class="card reveal r5"><h3>PART 4 · Checks &amp; Deploy</h3><p><span class="muted">状态检查、部署、Workflow 门禁与合并队列——合并前的质量关卡。</span></p></div>
+          <div class="card reveal r6"><h3>PART 5 · Bypass 治理</h3><p><span class="muted">直接绕过 vs 委派审批流，以及 GitHub App 的能力边界与 REST API。</span></p></div>
+          <div class="card reveal r6"><h3>PART 6 · Agentic Workflow</h3><p><span class="muted">自然语言 Markdown + AI 智能体在 Actions 中执行的仓库自动化：机制与安全护栏。</span></p></div>
         </div>
         <div style="margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r7">
           <span class="chip"><span class="n">▹</span> 面向 DevOps / 平台工程</span>
@@ -216,9 +216,100 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · SDLC</span><span>Workflow &amp; Ruleset</span></div>
     </section>
 
+    <!-- ============ SLIDE · AI 0 · DELIVERY CHAIN OVERVIEW ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">18 / 22</span></div>
+      <h2 class="reveal r1">AI 辅助交付链路 · <span class="cy">三段接力</span></h2>
+      <div class="body">
+        <div class="reveal r2" style="margin-bottom:30px;">
+          <div class="flow">
+            <div class="fnode"><div class="ic">写 · WRITE</div><div class="nm">Coding Agent</div><div class="ds">研究 / 计划 / 改码 / 开 PR</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">审 · REVIEW</div><div class="nm">Code Review</div><div class="ds">AI 评审 + 修复建议</div></div>
+            <div class="farr">→</div>
+            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">合 · MERGE</div><div class="nm">Agent Merge</div><div class="ds">修复阻塞后合并</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>① 写</h3><p class="muted">Coding/Cloud Agent 在 GitHub Actions <b>临时环境</b>自主开发，产出分支 / Draft PR。</p></div>
+          <div class="card reveal r4"><h3>② 审</h3><p class="muted">Copilot Code Review 从多角度评审 PR，给出<b>可一键应用</b>的修复。</p></div>
+          <div class="card reveal r5"><h3>③ 合</h3><p class="muted">Agent Merge 修 CI / 响应评审 / 解冲突，满足门禁后<b>自动合并</b>。</p></div>
+        </div>
+        <p class="reveal r6 muted" style="margin-top:26px;font-size:22px;">人始终在<b>关键节点把关</b>（review &amp; approve）；三段产出<b class="k-green">都要过 Ruleset / 分支保护门禁</b>——AI 加速，不越权。</p>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>AI 交付链路</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AI 0b · CODING / CLOUD AGENT ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">19 / 22</span></div>
+      <h2 class="reveal r1">Coding / Cloud Agent · <span class="cy">后台自主开发</span></h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:24px;">
+          像人类开发者一样在<b>后台独立工作</b>——研究仓库、制定计划、在分支改码、开 PR，<b>全程在 GitHub 上</b>（非本地 IDE）。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>能做什么</h3><p class="muted">修 bug · 增量新功能 · 提升测试覆盖 · 更新文档 · 处理技术债 · 解决合并冲突。</p></div>
+          <div class="card reveal r4"><h3>触发入口</h3><p class="muted">Issue <b>指派 Copilot</b> · Agents 面板 · PR 里 <b>@copilot</b> · 自动化 / 安全告警。</p></div>
+          <div class="card reveal r5"><h3>临时环境</h3><p class="muted">由 <b>GitHub Actions</b> 驱动的 ephemeral env——探索代码、跑测试与 linter。</p></div>
+          <div class="card reveal r6"><h3>增强 &amp; 定制</h3><p class="muted"><b>custom instructions</b> · Copilot Memory（preview）· 多个<b>专精 custom agents</b>。</p></div>
+        </div>
+        <p class="reveal r7 muted" style="margin-top:22px;font-size:22px;">与 <b>IDE Agent Mode</b>（改本地）不同：cloud agent 在<b>云端后台异步</b>、每步进 commit / 日志<b>全程透明</b>；产出 PR <b class="k-green">仍须过 Ruleset 与人工审查</b>——非特权通道。</p>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>Coding / Cloud Agent</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AI 1 · CODE REVIEW ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">20 / 22</span></div>
+      <h2 class="reveal r1">Copilot <span class="cy">Code Review</span> · AI 代码评审</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:24px;">
+          AI 评审 PR、<b>发现问题并给出可一键应用的修复建议</b>，支持任何编程语言。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>两种触发</h3><p class="muted"><b>手动</b>：把 Copilot 加为 reviewer（<code>gh pr edit --add-reviewer @copilot</code>）；<b>自动</b>：组织配置后评审所有 PR。</p></div>
+          <div class="card reveal r4"><h3>全项目上下文</h3><p class="muted">不只看 diff，<b>分析整个仓库</b>理解跨文件依赖，评审更精准。</p></div>
+          <div class="card reveal r5"><h3>一键修复 · cloud agent</h3><p class="muted">建议可一键应用；还能交给 <b>Copilot cloud agent</b> 自动新建修复 PR（preview）。</p></div>
+          <div class="card reveal r6"><h3>跑在 Actions 上</h3><p class="muted">Agentic 能力用 <b>GitHub Actions runner</b>；Actions 不可用则降级为基础评审。</p></div>
+        </div>
+        <div style="margin-top:22px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r7">
+          <span class="chip"><span class="n">·</span> Effort: Low / Medium</span>
+          <span class="chip"><span class="n">·</span> 排除 依赖 / 日志 / SVG</span>
+          <span class="chip"><span class="n">·</span> .github/copilot-instructions.md 自定义</span>
+          <span class="chip"><span class="n">·</span> Business / Enterprise 无许可也可用</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>代码评审</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AI 2 · AGENT MERGE ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">21 / 22</span></div>
+      <h2 class="reveal r1">Agent Merge · <span class="cy">自动合并最后一公里</span></h2>
+      <div class="body">
+        <div class="reveal r2" style="margin-bottom:24px;">
+          <div class="flow">
+            <div class="fnode"><div class="ic">1</div><div class="nm">创建 PR</div><div class="ds">探索项目后开 PR</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">2</div><div class="nm">监控 CI</div><div class="ds">跑测试 / 汇报状态</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">3</div><div class="nm">修复阻塞</div><div class="ds">CI / 评审 / 冲突</div></div>
+            <div class="farr">→</div>
+            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">4</div><div class="nm">合并</div><div class="ds">全绿后自动合并</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>自动处理阻塞</h3><p class="muted"><b>修复失败 CI</b> · <b>响应评审意见</b> · 需要时 <b>rebase / 解决冲突</b>。</p></div>
+          <div class="card reveal r4"><h3>后台运行</h3><p class="muted">跨 app 重启<b>存活</b>；PR 合并后<b>自动关闭</b>该会话。</p></div>
+          <div class="card reveal r5"><h3>你仍掌控</h3><p class="muted">你负责 <b>review &amp; approve</b>，智能体只做机械收尾。</p></div>
+          <div class="card reveal r6" style="border-color:var(--green);"><h3>尊重门禁</h3><p class="muted">"as soon as GitHub allows" 才合并——必须过 <b>Ruleset / 分支保护</b>。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Copilot App</span><span>Agent Merge</span></div>
+    </section>
+
     <!-- ============ SLIDE 3 · BIG PICTURE ============ -->
     <section class="slide">
-      <div class="shead reveal r1"><span class="kick">// 01 · 全景</span><span class="pg">03 / 14</span></div>
+      <div class="shead reveal r1"><span class="kick">// 全景 · OVERVIEW</span><span class="pg">03 / 14</span></div>
       <h2 class="reveal r1">从 Push 到 Merge 的<span class="cy">治理链路</span></h2>
       <div class="body">
         <p class="reveal r2" style="font-size:26px;color:var(--dim);line-height:1.5;margin-bottom:36px;">
@@ -592,109 +683,18 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>场景差异</span></div>
     </section>
 
-    <!-- ============ SLIDE · AI 0 · DELIVERY CHAIN OVERVIEW ============ -->
-    <section class="slide">
-      <div class="shead reveal r1"><span class="kick">// 07 · AI DELIVERY</span><span class="pg">18 / 22</span></div>
-      <h2 class="reveal r1">AI 辅助交付链路 · <span class="cy">三段接力</span></h2>
-      <div class="body">
-        <div class="reveal r2" style="margin-bottom:30px;">
-          <div class="flow">
-            <div class="fnode"><div class="ic">写 · WRITE</div><div class="nm">Coding Agent</div><div class="ds">研究 / 计划 / 改码 / 开 PR</div></div>
-            <div class="farr">→</div>
-            <div class="fnode"><div class="ic">审 · REVIEW</div><div class="nm">Code Review</div><div class="ds">AI 评审 + 修复建议</div></div>
-            <div class="farr">→</div>
-            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">合 · MERGE</div><div class="nm">Agent Merge</div><div class="ds">修复阻塞后合并</div></div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;">
-          <div class="card reveal r3"><h3>① 写</h3><p class="muted">Coding/Cloud Agent 在 GitHub Actions <b>临时环境</b>自主开发，产出分支 / Draft PR。</p></div>
-          <div class="card reveal r4"><h3>② 审</h3><p class="muted">Copilot Code Review 从多角度评审 PR，给出<b>可一键应用</b>的修复。</p></div>
-          <div class="card reveal r5"><h3>③ 合</h3><p class="muted">Agent Merge 修 CI / 响应评审 / 解冲突，满足门禁后<b>自动合并</b>。</p></div>
-        </div>
-        <p class="reveal r6 muted" style="margin-top:26px;font-size:22px;">人始终在<b>关键节点把关</b>（review &amp; approve）；三段产出<b class="k-green">都要过 Ruleset / 分支保护门禁</b>——AI 加速，不越权。</p>
-      </div>
-      <div class="foot"><span>GitHub · Copilot</span><span>AI 交付链路</span></div>
-    </section>
-
-    <!-- ============ SLIDE · AI 0b · CODING / CLOUD AGENT ============ -->
-    <section class="slide">
-      <div class="shead reveal r1"><span class="kick">// 07 · AI DELIVERY</span><span class="pg">19 / 22</span></div>
-      <h2 class="reveal r1">Coding / Cloud Agent · <span class="cy">后台自主开发</span></h2>
-      <div class="body">
-        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:24px;">
-          像人类开发者一样在<b>后台独立工作</b>——研究仓库、制定计划、在分支改码、开 PR，<b>全程在 GitHub 上</b>（非本地 IDE）。</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
-          <div class="card reveal r3"><h3>能做什么</h3><p class="muted">修 bug · 增量新功能 · 提升测试覆盖 · 更新文档 · 处理技术债 · 解决合并冲突。</p></div>
-          <div class="card reveal r4"><h3>触发入口</h3><p class="muted">Issue <b>指派 Copilot</b> · Agents 面板 · PR 里 <b>@copilot</b> · 自动化 / 安全告警。</p></div>
-          <div class="card reveal r5"><h3>临时环境</h3><p class="muted">由 <b>GitHub Actions</b> 驱动的 ephemeral env——探索代码、跑测试与 linter。</p></div>
-          <div class="card reveal r6"><h3>增强 &amp; 定制</h3><p class="muted"><b>custom instructions</b> · Copilot Memory（preview）· 多个<b>专精 custom agents</b>。</p></div>
-        </div>
-        <p class="reveal r7 muted" style="margin-top:22px;font-size:22px;">与 <b>IDE Agent Mode</b>（改本地）不同：cloud agent 在<b>云端后台异步</b>、每步进 commit / 日志<b>全程透明</b>；产出 PR <b class="k-green">仍须过 Ruleset 与人工审查</b>——非特权通道。</p>
-      </div>
-      <div class="foot"><span>GitHub · Copilot</span><span>Coding / Cloud Agent</span></div>
-    </section>
-
-    <!-- ============ SLIDE · AI 1 · CODE REVIEW ============ -->
-    <section class="slide">
-      <div class="shead reveal r1"><span class="kick">// 07 · AI DELIVERY</span><span class="pg">20 / 22</span></div>
-      <h2 class="reveal r1">Copilot <span class="cy">Code Review</span> · AI 代码评审</h2>
-      <div class="body">
-        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:24px;">
-          AI 评审 PR、<b>发现问题并给出可一键应用的修复建议</b>，支持任何编程语言。</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
-          <div class="card reveal r3"><h3>两种触发</h3><p class="muted"><b>手动</b>：把 Copilot 加为 reviewer（<code>gh pr edit --add-reviewer @copilot</code>）；<b>自动</b>：组织配置后评审所有 PR。</p></div>
-          <div class="card reveal r4"><h3>全项目上下文</h3><p class="muted">不只看 diff，<b>分析整个仓库</b>理解跨文件依赖，评审更精准。</p></div>
-          <div class="card reveal r5"><h3>一键修复 · cloud agent</h3><p class="muted">建议可一键应用；还能交给 <b>Copilot cloud agent</b> 自动新建修复 PR（preview）。</p></div>
-          <div class="card reveal r6"><h3>跑在 Actions 上</h3><p class="muted">Agentic 能力用 <b>GitHub Actions runner</b>；Actions 不可用则降级为基础评审。</p></div>
-        </div>
-        <div style="margin-top:22px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r7">
-          <span class="chip"><span class="n">·</span> Effort: Low / Medium</span>
-          <span class="chip"><span class="n">·</span> 排除 依赖 / 日志 / SVG</span>
-          <span class="chip"><span class="n">·</span> .github/copilot-instructions.md 自定义</span>
-          <span class="chip"><span class="n">·</span> Business / Enterprise 无许可也可用</span>
-        </div>
-      </div>
-      <div class="foot"><span>GitHub · Copilot</span><span>代码评审</span></div>
-    </section>
-
-    <!-- ============ SLIDE · AI 2 · AGENT MERGE ============ -->
-    <section class="slide">
-      <div class="shead reveal r1"><span class="kick">// 07 · AI DELIVERY</span><span class="pg">21 / 22</span></div>
-      <h2 class="reveal r1">Agent Merge · <span class="cy">自动合并最后一公里</span></h2>
-      <div class="body">
-        <div class="reveal r2" style="margin-bottom:24px;">
-          <div class="flow">
-            <div class="fnode"><div class="ic">1</div><div class="nm">创建 PR</div><div class="ds">探索项目后开 PR</div></div>
-            <div class="farr">→</div>
-            <div class="fnode"><div class="ic">2</div><div class="nm">监控 CI</div><div class="ds">跑测试 / 汇报状态</div></div>
-            <div class="farr">→</div>
-            <div class="fnode"><div class="ic">3</div><div class="nm">修复阻塞</div><div class="ds">CI / 评审 / 冲突</div></div>
-            <div class="farr">→</div>
-            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">4</div><div class="nm">合并</div><div class="ds">全绿后自动合并</div></div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
-          <div class="card reveal r3"><h3>自动处理阻塞</h3><p class="muted"><b>修复失败 CI</b> · <b>响应评审意见</b> · 需要时 <b>rebase / 解决冲突</b>。</p></div>
-          <div class="card reveal r4"><h3>后台运行</h3><p class="muted">跨 app 重启<b>存活</b>；PR 合并后<b>自动关闭</b>该会话。</p></div>
-          <div class="card reveal r5"><h3>你仍掌控</h3><p class="muted">你负责 <b>review &amp; approve</b>，智能体只做机械收尾。</p></div>
-          <div class="card reveal r6" style="border-color:var(--green);"><h3>尊重门禁</h3><p class="muted">"as soon as GitHub allows" 才合并——必须过 <b>Ruleset / 分支保护</b>。</p></div>
-        </div>
-      </div>
-      <div class="foot"><span>GitHub · Copilot App</span><span>Agent Merge</span></div>
-    </section>
-
     <!-- ============ SLIDE 14 · TAKEAWAYS / CLOSING ============ -->
     <section class="slide closing">
       <div class="shead reveal r1"><span class="kick">// SUMMARY</span><span class="pg">14 / 14</span></div>
       <h2 class="reveal r1">关键 <span class="cy">Takeaways</span></h2>
       <div class="body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="card reveal r2"><h3>01 · 分工</h3><p><b>Workflow</b> 负责自动执行并产出检查信号；<b>Ruleset</b> 负责设门槛约束交互。</p></div>
-          <div class="card reveal r3"><h3>02 · Ruleset 分层</h3><p>Repo / Org / Enterprise 三层可叠加；enforcement 支持 <b>evaluate</b> 先观察再强制。</p></div>
-          <div class="card reveal r4"><h3>03 · 检查本质</h3><p>Ruleset 只管"哪些名字必须绿"，真正检查逻辑在你的 workflow / CI 里。</p></div>
-          <div class="card reveal r5" style="border-color:var(--green);"><h3>04 · Bypass 边界</h3><p>App 可作 <b>bypass actor 直接绕过</b> 与 <b>只读监控</b>,但<b>不能审批</b> request。</p></div>
-          <div class="card reveal r6"><h3>05 · Agentic Workflow</h3><p>自然语言 Markdown + AI 智能体跑在 Actions 上；<b>safe-outputs</b> + <b>Ruleset</b> 双层护栏。</p></div>
-          <div class="card reveal r7" style="border-color:var(--green);"><h3>06 · AI 交付链路</h3><p><b>Coding Agent</b> 开 PR → <b>Code Review</b> 评审 → <b>Agent Merge</b> 合并；全程过 Ruleset 门禁。</p></div>
+          <div class="card reveal r2" style="border-color:var(--green);"><h3>01 · AI 交付链路</h3><p><b>Coding Agent</b> 开 PR → <b>Code Review</b> 评审 → <b>Agent Merge</b> 合并；全程过 Ruleset 门禁。</p></div>
+          <div class="card reveal r3"><h3>02 · 分工</h3><p><b>Workflow</b> 负责自动执行并产出检查信号；<b>Ruleset</b> 负责设门槛约束交互。</p></div>
+          <div class="card reveal r4"><h3>03 · Ruleset 分层</h3><p>Repo / Org / Enterprise 三层可叠加；enforcement 支持 <b>evaluate</b> 先观察再强制。</p></div>
+          <div class="card reveal r5"><h3>04 · 检查本质</h3><p>Ruleset 只管"哪些名字必须绿"，真正检查逻辑在你的 workflow / CI 里。</p></div>
+          <div class="card reveal r6" style="border-color:var(--green);"><h3>05 · Bypass 边界</h3><p>App 可作 <b>bypass actor 直接绕过</b> 与 <b>只读监控</b>,但<b>不能审批</b> request。</p></div>
+          <div class="card reveal r7"><h3>06 · Agentic Workflow</h3><p>自然语言 Markdown + AI 智能体跑在 Actions 上；<b>safe-outputs</b> + <b>Ruleset</b> 双层护栏。</p></div>
         </div>
         <p class="reveal r8" style="margin-top:16px;font-family:var(--font-mono);font-size:22px;color:var(--green);">$ 谢谢观看 — Q&amp;A<span class="cursor"></span></p>
       </div>
