@@ -258,6 +258,44 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Copilot</span><span>Coding / Cloud Agent</span></div>
     </section>
 
+    <!-- ============ SLIDE · AI 0c · CODING AGENT EXTENSIONS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">05 / 24</span></div>
+      <h2 class="reveal r1">Coding Agent <span class="cy">扩展能力</span> · 三种机制</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:26px;">
+          给 Agent“加装备”：<b class="k-green">MCP</b> 决定“连什么工具”，<b class="k-green">Skills</b> 决定“怎么干活”，<b class="k-green">Custom Agents</b> 打包成“专精角色”。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>MCP · 接工具</h3><p class="muted">Model Context Protocol 连接外部工具 / 数据源。默认装 <b>GitHub + Playwright</b>；仓库级 JSON 配置，<b>Cloud Agent 与 Code Review 共享</b>，建议只放只读工具。</p></div>
+          <div class="card reveal r4"><h3>Agent Skills · 教方法</h3><p class="muted"><b>SKILL.md</b>（指令 + 脚本 + 资源），按 <b>description 自动加载</b>。项目级 <code>.github/skills</code> · 个人级 <code>~/.copilot/skills</code>。</p></div>
+          <div class="card reveal r5"><h3>Custom Agents · 定角色</h3><p class="muted">专精 agent 打包 <b>tools / model / mcp-servers</b> 与指令；可按任务自动选用，也可组织级统一下发。</p></div>
+        </div>
+        <p class="reveal r6 muted" style="margin-top:24px;font-size:22px;">三者叠加：Skill 常<b>编排 MCP 工具</b>（如调用 GitHub MCP 的 <code>list_workflow_runs</code> 排查 CI）；扩展产出<b class="k-green">仍须过 Ruleset 与人工审查</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>扩展能力</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AI 0d · EXTENSIONS MANAGEMENT ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">06 / 24</span></div>
+      <h2 class="reveal r1">扩展能力 <span class="cy">统一管理</span> · 作用域与治理</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>机制</th><th>作用域（项目 / 个人）</th><th>组织级原生统一</th><th>策略管控</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td><b>MCP</b></td><td class="muted">仓库 MCP 设置(JSON) / IDE · CLI</td><td class="k-green">✓ 经组织级 custom agent</td><td class="k-green">✓ “MCP servers” 策略</td></tr>
+            <tr class="reveal r3"><td><b>Agent Skill</b></td><td class="muted"><code>.github/skills</code> / <code>~/.copilot/skills</code></td><td class="k-red">✗ 无原生（靠 gh skill 分发）</td><td class="k-red">✗ 无专属策略</td></tr>
+            <tr class="reveal r4"><td><b>Custom Agent</b></td><td class="muted"><code>.github/agents</code></td><td class="k-green">✓ .github(-private) 的 /agents</td><td class="k-green">✓ 企业 ruleset</td></tr>
+          </tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px;">
+          <div class="card reveal r5"><h3>gh skill · 分发与审计</h3><p class="muted"><code>search / preview / install --pin / update --all / publish</code>；安装写入 <b>provenance</b>（源仓库 · ref · SHA），升级可追溯、可锁版本。</p></div>
+          <div class="card reveal r6" style="border-color:var(--green);"><h3>组织统一的正解</h3><p class="muted">专精行为 → <b>组织级 custom agents</b>（全组织可用）；SKILL.md → <b>中央 skills 仓库 + gh skill</b> 或<b>仓库模板</b>分发到各仓库。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>统一管理</span></div>
+    </section>
+
     <!-- ============ SLIDE · AI 1 · CODE REVIEW ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">20 / 22</span></div>
