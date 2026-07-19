@@ -296,6 +296,48 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Copilot</span><span>统一管理</span></div>
     </section>
 
+    <!-- ============ SLIDE · AI 0e · ENTERPRISE GOVERNANCE (.github-private) ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">07 / 26</span></div>
+      <h2 class="reveal r1">企业治理 <span class="cy">.github-private</span> · 集中管控来源</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:24px;line-height:1.5;color:var(--dim);margin-bottom:26px;">
+          把 Agent / 插件 / 权限的治理规则集中放进<b class="k-green">一个仓库</b>，以“代码”方式审阅与下发 —— 企业级<b>唯一配置来源</b>。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;">
+          <div class="card reveal r3"><h3>托管什么</h3><p class="muted">企业级 <b>custom agents</b>、<b>plugins</b>、<b>client permissions</b> 的治理设置；含 <code>copilot/managed-settings.json</code>。</p></div>
+          <div class="card reveal r4"><h3>为什么用仓库</h3><p class="muted">成员可开 <b>PR</b> 提改进；变更受 <b>CODEOWNERS + Ruleset</b> 约束 —— 治理即代码、可审计。</p></div>
+          <div class="card reveal r5"><h3>作用范围</h3><p class="muted">对企业 Copilot <b>全员生效</b>，<b class="k-amber">无论是否能访问该仓库</b>；可见性（Internal / Private）只决定谁能提改动。</p></div>
+        </div>
+        <p class="reveal r6 muted" style="margin-top:24px;font-size:22px;">用模板 <code>docs/custom-agents-template</code> 建名为 <code>.github-private</code> 的仓库 → 企业 <b>Copilot（AI controls）→ Agents → Configuration source</b> 选中持有它的组织。</p>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>企业治理</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AI 0f · ENTERPRISE-MANAGED SETTINGS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">08 / 26</span></div>
+      <h2 class="reveal r1">企业强制配置 <span class="cy">managed-settings.json</span> · 统一护栏</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:23px;line-height:1.5;color:var(--dim);margin-bottom:22px;">
+          企业主集中下发客户端配置：<b class="k-green">企业范围强制、组织不可覆盖</b>；启动<b>本地加载、离线即生效</b>（当前支持 <b>CLI + VS Code</b>）。</p>
+        <table>
+          <thead><tr><th>Key</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr class="reveal r3"><td><code>permissions.disableBypassPermissionsMode</code></td><td class="muted">禁用 bypass / YOLO 式全部放行</td></tr>
+            <tr class="reveal r4"><td><code>permissions.model</code></td><td class="muted">将 <b>auto</b> 设为新会话默认模型</td></tr>
+            <tr class="reveal r5"><td><code>enabledPlugins</code></td><td class="muted">按 <code>名@市场</code> 强制<b>启用 / 禁用</b>插件</td></tr>
+            <tr class="reveal r6"><td><code>extra / strictKnownMarketplaces</code></td><td class="muted">新增可用市场 / <b>白名单</b>限制安装来源</td></tr>
+            <tr class="reveal r7"><td><code>telemetry</code></td><td class="muted">VS Code 遥测（OpenTelemetry）导出</td></tr>
+          </tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:26px;">
+          <div class="card reveal r8"><h3>三种下发方式</h3><p class="muted"><b>Server</b>（放进 .github-private，走 PR / 审计）· <b>MDM</b>（按设备组）· <b>File-based</b>（全平台 / 容器 / Codespaces）。</p></div>
+          <div class="card reveal r8" style="border-color:var(--green);"><h3>优先级与生效</h3><p class="muted">优先级 <b>MDM &gt; Server &gt; File &gt; 用户级</b>；约 <b>1 小时</b>内生效，重启 / 重登即时。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>企业强制配置</span></div>
+    </section>
+
     <!-- ============ SLIDE · AI 1 · CODE REVIEW ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">20 / 22</span></div>
