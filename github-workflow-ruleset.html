@@ -387,6 +387,33 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Copilot</span><span>代码评审 · 深入</span></div>
     </section>
 
+    <!-- ============ SLIDE · AI 1c · CODE REVIEW CUSTOMIZATION ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">22 / 31</span></div>
+      <h2 class="reveal r1">Code Review <span class="cy">定制化</span> · 环境 · 指令 · Skills</h2>
+      <div class="body">
+        <p class="reveal r2" style="font-size:23px;line-height:1.5;color:var(--dim);margin-bottom:22px;">
+          评审运行在<b>临时环境</b>（与 Cloud Agent 同源），可像定制 Cloud Agent 一样定制<b>运行环境 / 评审规则 / 上下文能力</b>。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+          <div class="card reveal r3" style="border-color:var(--green);"><h3>环境定制 🆕</h3><p class="muted">用 Actions 工作流文件<b>预装工具/依赖、切换 OS</b>；防火墙规则可在 <b>org / repo</b> 级独立控制可访问域名。</p></div>
+          <div class="card reveal r4"><h3>三层自定义指令</h3><p class="muted"><code>copilot-instructions.md</code> 全仓库 · <code>AGENTS.md</code> 项目背景 · <code>*.instructions.md</code> 按路径。用 <b>base 分支</b>指令，甚至可<b>指定评审语言</b>。</p></div>
+          <div class="card reveal r5"><h3>Skills + MCP · preview</h3><p class="muted"><code>.github/skills</code>（目录名用 <b>code-review</b> 更易触发）+ MCP（默认 GitHub / Playwright）。<b>session logs</b> 可追溯实际调用。</p></div>
+        </div>
+        <div class="code reveal r6" style="margin-top:22px;">
+<span class="c1"># 评审环境配置 · 二选一（前者存在则优先）</span><br>
+.github/workflows/<span class="gn">copilot-code-review.yml</span>   <span class="c1"># 专属 Code Review · 独立于 Cloud Agent</span><br>
+.github/workflows/<span class="kw">copilot-setup-steps.yml</span>  <span class="c1"># 与 Cloud Agent 共用 · 默认复用</span>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:14px;flex-wrap:wrap;" class="reveal r7">
+          <span class="chip"><span class="n">·</span> 预装依赖 / 换 OS</span>
+          <span class="chip"><span class="n">·</span> 独立防火墙 org+repo</span>
+          <span class="chip"><span class="n">·</span> base 分支指令生效</span>
+          <span class="chip"><span class="n">·</span> MCP 评审默认开 · 可关</span>
+        </div>
+      </div>
+      <div class="foot"><span>GitHub · Copilot</span><span>代码评审 · 定制化</span></div>
+    </section>
+
     <!-- ============ SLIDE · AI 2 · AGENT MERGE ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 01 · AI 交付链路</span><span class="pg">21 / 22</span></div>
