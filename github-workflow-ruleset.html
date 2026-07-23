@@ -816,6 +816,52 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>场景差异</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 5 · KEY COMPONENTS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">18 / 33</span></div>
+      <h2 class="reveal r1">gh-aw · <span class="cy">关键组件</span></h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+          <div class="card reveal r2"><h3>内容层</h3><p class="muted"><code>.md</code> 源文件 · frontmatter + 自然语言指令（唯一可编辑）<br><code>.lock.yml</code> 编译产物 · 加固后的 Actions（<b>两者都提交</b>）</p></div>
+          <div class="card reveal r3"><h3>工具链 & 能力</h3><p class="muted"><code>gh aw</code> CLI：init / add / compile / run / logs / audit<br>engine：Copilot（默认）/ Claude / Codex / Gemini<br><b>MCP + MCP Gateway</b> · MCP Scripts · skills（SHA 钉）</p></div>
+          <div class="card reveal r4" style="border-color:var(--green);"><h3>安全 & 供应链</h3><p class="muted"><b>SafeOutputs</b> 唯一写入闸门<br>网络防火墙 + API proxy + 沙箱容器<br><code>actions-lock.json</code> 依赖 SHA 钉 · <code>max-ai-credits</code> 成本护栏</p></div>
+        </div>
+        <div style="margin-top:26px;" class="reveal r5">
+          <div class="flow">
+            <div class="fnode"><div class="ic">A</div><div class="nm">Substrate 基座</div><div class="ds">内核 / 容器级隔离</div></div>
+            <div class="farr">→</div>
+            <div class="fnode"><div class="ic">B</div><div class="nm">Configuration</div><div class="ds">声明式配置 · token 分发</div></div>
+            <div class="farr">→</div>
+            <div class="fnode" style="border-color:var(--green);"><div class="ic" style="color:var(--green);">C</div><div class="nm">Plan 计划</div><div class="ds">编译器分阶段 · SafeOutputs</div></div>
+          </div>
+        </div>
+        <p class="reveal r6 muted" style="margin-top:22px;font-size:22px;">三层信任模型层层设防：即使上层组件被攻破，下层隔离仍<b class="k-green">限制其"爆炸半径"</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>关键组件</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AGENTIC 6 · FRONTMATTER CATALOG ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">19 / 33</span></div>
+      <h2 class="reveal r1">gh-aw · <span class="cy">Frontmatter 配置全景</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th style="width:20%;">类别</th><th>关键可配置字段</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td class="k-green"><b>核心五块</b></td><td><code>on</code> 触发 · <code>permissions</code> 只读权限 · <code>engine</code> 引擎 · <code>tools</code> 工具/MCP · <code>safe-outputs</code> 写操作</td></tr>
+            <tr class="reveal r3"><td><b>触发扩展</b></td><td><code>roles</code>/<code>bots</code> · <code>manual-approval</code> · <code>reaction</code> · <code>status-comment</code> · <code>stop-after</code> · <code>skip-if-*</code></td></tr>
+            <tr class="reveal r4"><td><b>组合复用</b></td><td><code>imports</code> 共享组件 · <code>steps</code> 确定性步骤 · <code>mcp-scripts</code> 内联工具 · <code>skills</code></td></tr>
+            <tr class="reveal r5"><td><b>网络 & 运行</b></td><td><code>network</code> 出网白名单 · <code>runs-on</code> · <code>timeout-minutes</code> · <code>env</code>/<code>secrets</code> · <code>container</code>/<code>services</code> · <code>runtimes</code> · <code>cache</code></td></tr>
+            <tr class="reveal r6"><td><b>成本 & 观测</b></td><td><code>max-ai-credits</code>（默认 1000）· <code>max-daily-ai-credits</code> · <code>observability.otlp</code></td></tr>
+            <tr class="reveal r7"><td><b>安全 & 编译</b></td><td><code>strict</code>（公开仓库必需）· <code>version-check</code> · <code>features</code> 实验开关</td></tr>
+            <tr class="reveal r8"><td><b>元数据</b></td><td><code>description</code> · <code>labels</code> · <code>tracker-id</code> · <code>private</code> · <code>source</code>/<code>redirect</code></td></tr>
+          </tbody>
+        </table>
+        <p class="reveal r8 muted" style="margin-top:18px;font-size:21px;"><b class="k-green">核心五块</b>最常用；其余多为标准 Actions 字段透传 + gh-aw 的安全/成本护栏扩展。<code>on</code> 内还可嵌 <code>github-app</code> / <code>needs</code> / 预激活 <code>steps</code>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>Frontmatter</span></div>
+    </section>
+
     <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
