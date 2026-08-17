@@ -966,6 +966,32 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>safe-outputs</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 11 · INTRODUCING AGENTS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">34 / 38</span></div>
+      <h2 class="reveal r1">引入 Agent · <span class="cy">4 种方式</span></h2>
+      <div class="body">
+        <p class="reveal r2 muted" style="font-size:22px;margin-bottom:20px;">两层「Agent」:驱动工作流的 <b class="k-green">AI 引擎</b> + 注入专用行为的 <b class="k-cyan">Custom Agent</b>。共 4 种引入方式。</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;">
+          <div class="card reveal r3" style="border-color:var(--green);"><h3>① <code>engine:</code></h3><p class="muted"><b class="k-green">选 AI 引擎</b><br><code>copilot|claude|codex|gemini</code><br>驱动整个工作流 · 默认 copilot</p></div>
+          <div class="card reveal r3" style="border-color:var(--cyan);"><h3 style="color:var(--cyan);">② <code>imports:</code></h3><p class="muted"><b class="k-cyan">导入 agent 文件</b><br><code>.github/agents/*.md</code><br>本地或 <code>owner/repo/path@ref</code></p></div>
+          <div class="card reveal r4" style="border-color:var(--amber);"><h3 style="color:var(--amber);">③ <code>## agent:</code></h3><p class="muted"><b class="k-amber">Inline Sub-Agents</b><br>同文件内多个块,各带 <code>model</code><br>父提示词按名字调用</p></div>
+          <div class="card reveal r4"><h3>④ <code>engine.agent</code></h3><p class="muted">Copilot 原生绑定<br><code>id: copilot</code> + <code>agent: name</code><br><b class="k-red">仅 copilot</b></p></div>
+        </div>
+        <table style="margin-top:24px;">
+          <thead><tr><th style="width:22%;">方式</th><th>引入内容</th><th style="width:18%;">数量</th><th style="width:28%;">引擎支持</th></tr></thead>
+          <tbody>
+            <tr class="reveal r5"><td class="k-green"><b>① engine:</b></td><td class="muted">驱动整个工作流的 AI 引擎</td><td class="muted">1</td><td class="muted">全部</td></tr>
+            <tr class="reveal r6"><td class="k-cyan"><b>② imports agent 文件</b></td><td class="muted">外部专精提示词(<code>name/tools/mcp-servers</code>)</td><td class="muted"><b class="k-red">仅 1 个/工作流</b> ⚠</td><td class="muted">copilot 原生 · 其余作提示注入</td></tr>
+            <tr class="reveal r6"><td class="k-amber"><b>③ Inline Sub-Agents</b></td><td class="muted">同文件子代理(各可不同 model)</td><td class="muted"><b>多个</b> ✅</td><td class="muted">全部(抽取到各引擎路径)</td></tr>
+            <tr class="reveal r7"><td><b>④ engine.agent</b></td><td class="muted">绑定单一 <code>.github/agents/</code> 文件</td><td class="muted">1</td><td class="muted">仅 copilot</td></tr>
+          </tbody>
+        </table>
+        <p class="reveal r8 muted" style="margin-top:16px;font-size:21px;">换驱动引擎 → <b class="k-green">①</b>;复用组织 agent 库 → <b class="k-cyan">②</b>(远程 <code>@ref</code> 按 SHA 缓存到 <code>.github/aw/imports/</code>);一个工作流内多角色 → <b class="k-amber">③</b>;Copilot 原生绑定 → <b>④</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>引入 Agent</span></div>
+    </section>
+
     <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
