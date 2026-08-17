@@ -992,6 +992,57 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>引入 Agent</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 12 · DESIGN PATTERNS 1/2 ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">35 / 40</span></div>
+      <h2 class="reveal r1">设计模式 · <span class="cy">15 模式全景 · 1/2</span></h2>
+      <div class="body">
+        <p class="reveal r2 muted" style="font-size:22px;margin-bottom:18px;">官方 <b>15 个模式</b> · 5 大类。统一基线:<b class="k-green">agent 只读</b> + 一切写操作走 <b>safe-outputs</b> 受权 job。</p>
+        <!-- 5-group legend, this slide covers ①② -->
+        <div class="reveal r3" style="display:flex;gap:12px;margin-bottom:22px;">
+          <div style="flex:1;background:var(--panel);border:1px solid var(--green);border-radius:10px;padding:12px 8px;text-align:center;"><b class="k-green">① 触发驱动</b></div>
+          <div style="flex:1;background:var(--panel);border:1px solid var(--cyan);border-radius:10px;padding:12px 8px;text-align:center;"><b class="k-cyan">② 编排协调</b></div>
+          <div style="flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center;color:var(--dim);">③ 跨仓组织</div>
+          <div style="flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center;color:var(--dim);">④ 状态计算</div>
+          <div style="flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center;color:var(--dim);">⑤ 治理观测</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+          <div class="card reveal r4" style="border-color:var(--green);"><h3 class="k-green">① 触发驱动 · 由事件/命令激活</h3>
+            <p class="muted" style="margin-top:12px;line-height:1.9;"><b class="k-green">IssueOps</b> — issue opened → 三分/路由/回复<br><b>LabelOps</b> — <code>label_command</code> 一次性 vs <code>names:</code> 持久<br><b>ChatOps</b> — <code>/斜杠</code>命令 · 人在环 + <code>on.roles</code> 校验<br><b>DispatchOps</b> — 手动 <code>workflow_dispatch</code> + 自定义输入</p>
+          </div>
+          <div class="card reveal r5" style="border-color:var(--cyan);"><h3 style="color:var(--cyan);">② 编排协调 · 拆分与并行</h3>
+            <p class="muted" style="margin-top:12px;line-height:1.9;"><b class="k-cyan">OrchestratorOps</b> — 扇出 worker · 分权分工具<br><b>BatchOps</b> — matrix 并行 + 限速 + 结果聚合<br><b>WorkQueueOps</b> — 队列增量消费 · 抗中断/限速<br><b>ResearchPlanAssignOps</b> — 研究→规划→指派 Copilot→合并</p>
+          </div>
+        </div>
+        <p class="reveal r8 muted" style="margin-top:20px;font-size:21px;">「事件/命令」进 → 「拆分/并行」算;③ 跨仓组织 · ④ 状态计算 · ⑤ 治理观测 见下一页。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>设计模式 1/2</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AGENTIC 13 · DESIGN PATTERNS 2/2 ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">36 / 40</span></div>
+      <h2 class="reveal r1">设计模式 · <span class="cy">15 模式全景 · 2/2</span></h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start;">
+          <div class="card reveal r2" style="border-color:var(--amber);"><h3 style="color:var(--amber);">③ 跨仓 / 组织</h3>
+            <p class="muted" style="margin-top:12px;line-height:1.85;"><b class="k-amber">MultiRepoOps</b> — side repo + <code>target-repo</code> 跨仓<br><b>CentralRepoOps</b> — 中央控制平面 / 聚合追踪器<br><b>SpecOps</b> — W3C 规范 + 跨仓传播</p>
+          </div>
+          <div class="card reveal r3" style="border-color:var(--red);"><h3 style="color:var(--red);">④ 状态 / 混合计算</h3>
+            <p class="muted" style="margin-top:12px;line-height:1.85;"><b class="k-red">MemoryOps</b> — Cache/Repo Memory 跨运行存状态<br><b>DeterministicOps</b> — 确定性 <code>steps</code>/<code>jobs</code> + AI 推理</p>
+          </div>
+          <div class="card reveal r4"><h3>⑤ 治理 / 可观测</h3>
+            <p class="muted" style="margin-top:12px;line-height:1.85;"><b>MonitorOps</b> — 巡检日志/成本/失败 → 报告+升级<br><b>ProjectOps</b> — Projects 智能路由 / 字段更新</p>
+          </div>
+        </div>
+        <div class="card reveal r6" style="border-color:var(--cyan);margin-top:22px;"><h3 style="color:var(--cyan);">组合关系 · 模式可自由叠加</h3>
+          <p class="muted" style="margin-top:12px;line-height:1.9;">任何 Ops ⊕ <b class="k-red">MemoryOps</b>(状态)⊕ <b class="k-red">DeterministicOps</b>(预处理)⊕ <b>MonitorOps</b>(观测)<br><b>ResearchPlanAssignOps</b> = <b class="k-cyan">OrchestratorOps</b> + <b class="k-green">IssueOps</b> + Copilot 编码 · &nbsp; <b>CentralRepoOps</b> ⊂ <b class="k-amber">MultiRepoOps</b></p>
+        </div>
+        <p class="reveal r8 muted" style="margin-top:18px;font-size:21px;">15 模式共享同一安全基线(<b class="k-green">只读 + safe-outputs + Ruleset</b>),按业务需要拼装成端到端自动化。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>设计模式 2/2</span></div>
+    </section>
+
     <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
