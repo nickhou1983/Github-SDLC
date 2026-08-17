@@ -862,6 +862,40 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>Frontmatter</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 7 · MULTI-AGENT ORCHESTRATION ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">20 / 34</span></div>
+      <h2 class="reveal r1">多 Agent 编排 · <span class="cy">OrchestratorOps</span></h2>
+      <div class="body">
+        <!-- fan-out diagram: Orchestrator → Workers -->
+        <div class="reveal r2" style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:22px;">
+          <div class="fnode" style="flex:0 0 240px;border-color:var(--cyan);">
+            <div class="ic" style="color:var(--cyan);">ORCH</div>
+            <div class="nm">Orchestrator</div>
+            <div class="ds">决策 · 拆分 · 分派</div>
+          </div>
+          <div class="farr">⇉</div>
+          <div style="display:flex;flex-direction:column;gap:12px;flex:0 0 560px;">
+            <div style="background:var(--panel);border:1px solid var(--green);border-radius:10px;padding:12px 18px;font-size:21px;"><b class="k-green">Worker A</b> · Issue 分诊 <span class="muted">— 受限权限 + 独立工具</span></div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;font-size:21px;"><b>Worker B</b> · 依赖升级 <span class="muted">— <code>target-repo</code> 跨仓</span></div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px;font-size:21px;"><b>Worker N</b> · 代码修复 <span class="muted">— 可选异构引擎</span></div>
+          </div>
+        </div>
+        <!-- dispatch vs call comparison -->
+        <table>
+          <thead><tr><th style="width:15%;">分派方式</th><th class="k-amber"><code>dispatch-workflow</code></th><th class="k-green"><code>call-workflow</code></th></tr></thead>
+          <tbody>
+            <tr class="reveal r3"><td><b>底层</b></td><td class="muted"><code>workflow_dispatch</code> API</td><td class="muted"><code>workflow_call</code> · 编译期扇出</td></tr>
+            <tr class="reveal r4"><td><b>执行</b></td><td class="muted"><b>异步</b> · 独立 run · 可超出父运行</td><td class="muted">同 run · <b>worker 先完成</b>,编排器才结束</td></tr>
+            <tr class="reveal r5"><td><b>归属</b></td><td class="muted">独立 run</td><td class="muted">保留 <code>github.actor</code> 与<b>计费归属</b></td></tr>
+            <tr class="reveal r6"><td><b>何时用</b></td><td class="muted">长任务 / 需异步 / 需 dispatch 入参</td><td class="muted">需 actor 归属 / 需等待完成 / 零 API 开销</td></tr>
+          </tbody>
+        </table>
+        <p class="reveal r7 muted" style="margin-top:18px;font-size:21px;">共享 <code>tracker_id</code> 串联各 worker,写入 <b>GitHub Project</b> 看板同步进度;阶段间可插 <b>manual-approval</b> 人工复核。产物仍过 <b class="k-green">safe-outputs 闸门 + Ruleset</b>——<b>并行干活,但不越权</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>多 Agent 编排</span></div>
+    </section>
+
     <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
