@@ -896,6 +896,31 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>多 Agent 编排</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 8 · CHAINING CUSTOM AGENTS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">31 / 35</span></div>
+      <h2 class="reveal r1">Custom Agent · <span class="cy">四种串联方式</span></h2>
+      <div class="body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;">
+          <div class="card reveal r2" style="border-color:var(--green);"><h3>① Inline Sub-Agents</h3><p class="muted"><b class="k-green">同一次运行</b><br>一个 <code>.md</code> 里多个 <code>## agent:</code> 块<br>父提示词按名字调用</p></div>
+          <div class="card reveal r3" style="border-color:var(--cyan);"><h3 style="color:var(--cyan);">② call-workflow</h3><p class="muted"><b class="k-cyan">同一次运行</b>(等待)<br>编排器调用多个可复用 workflow<br>保留 actor / 计费</p></div>
+          <div class="card reveal r4" style="border-color:var(--amber);"><h3 style="color:var(--amber);">③ dispatch-workflow</h3><p class="muted"><b class="k-amber">异步 · 独立 run</b><br>扇出多个 worker workflow<br>可超出父运行</p></div>
+          <div class="card reveal r5"><h3>④ imports 文件</h3><p class="muted"><code>.github/agents/*.md</code><br><b class="k-red">每工作流仅 1 个</b> ⚠<br>专精提示词定制行为</p></div>
+        </div>
+        <table style="margin-top:24px;">
+          <thead><tr><th style="width:22%;">方式</th><th>串联对象</th><th style="width:16%;">数量</th><th>适用场景</th></tr></thead>
+          <tbody>
+            <tr class="reveal r6"><td class="k-green"><b>① Inline Sub-Agents</b></td><td class="muted">工作流内子代理（各可不同 model）</td><td class="muted"><b>多个</b> ✅</td><td class="muted">单文件内角色接力：总结→审查→修复</td></tr>
+            <tr class="reveal r6"><td class="k-cyan"><b>② call-workflow</b></td><td class="muted">可复用 workflow（各带 1 个 imports）</td><td class="muted">多个</td><td class="muted">复用组织 agent 库 · 需 actor/计费归属</td></tr>
+            <tr class="reveal r7"><td class="k-amber"><b>③ dispatch-workflow</b></td><td class="muted">独立 workflow</td><td class="muted">多个</td><td class="muted">长任务 · 跨多仓 · 异步并行</td></tr>
+            <tr class="reveal r7"><td><b>④ imports agent 文件</b></td><td class="muted"><code>.github/agents/*.md</code></td><td class="muted"><b class="k-red">仅 1 个/工作流</b></td><td class="muted">单个外部专精提示词定制</td></tr>
+          </tbody>
+        </table>
+        <p class="reveal r8 muted" style="margin-top:16px;font-size:21px;">单次运行串多个 → <b class="k-green">① Inline Sub-Agents</b>(可各用不同模型);跨工作流串多个 → <b class="k-cyan">②</b>/<b class="k-amber">③</b> 编排(每 worker 配 1 个 <code>imports</code>)。唯一限制:<code>imports</code> <b>每工作流仅 1 个</b>。全程仍过 <b class="k-green">safe-outputs + Ruleset</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>Custom Agent 串联</span></div>
+    </section>
+
     <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
