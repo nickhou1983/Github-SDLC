@@ -921,6 +921,51 @@ tr td:first-child{color:var(--text-hi);}
       <div class="foot"><span>GitHub · Agentic</span><span>Custom Agent 串联</span></div>
     </section>
 
+    <!-- ============ SLIDE · AGENTIC 9 · PERMISSIONS ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">32 / 37</span></div>
+      <h2 class="reveal r1">Permissions · <span class="cy">默认只读的权限模型</span></h2>
+      <div class="body">
+        <p class="reveal r2 muted" style="font-size:22px;margin-bottom:20px;">agent <b class="k-green">默认只读</b>,一切写操作走 <b>safe-outputs</b> 独立受权 job → 审计留痕 · 限爆炸半径 · 防提示注入。</p>
+        <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:start;">
+          <div class="card reveal r3"><h3>标准读权限 · 10 项</h3>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;">
+              <span class="chip">contents</span><span class="chip">issues</span><span class="chip">pull-requests</span><span class="chip">discussions</span><span class="chip">actions</span><span class="chip">checks</span><span class="chip">deployments</span><span class="chip">packages</span><span class="chip">pages</span><span class="chip">statuses</span>
+            </div>
+            <p class="muted" style="margin-top:16px;">简写:<code>read-all</code>(全读)· <code>{}</code>(无权限,纯计算)</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="card reveal r4" style="border-color:var(--amber);"><h3 style="color:var(--amber);">特殊写权限 · 免 safe-outputs</h3><p class="muted"><code>id-token: write</code> / <code>none</code> — OIDC 云认证(AWS/GCP/Azure)<br><code>copilot-requests: write</code> — 用 Actions token 做 Copilot 推理</p></div>
+            <div class="card reveal r5"><h3>App-Only 作用域 · <span class="k-red">只能 read</span></h3><p class="muted"><b>仓库级</b>:administration · workflows · environments · git-signing …<br><b>组织级</b>:members · organization-copilot · organization-hooks …<br><b>用户级</b>:email-addresses · codespaces-metadata …</p></div>
+          </div>
+        </div>
+        <p class="reveal r6 muted" style="margin-top:20px;font-size:21px;">⚠ <code>id-token: read</code> 非法(编译期拒绝);App-Only 作用域须额外认证且<b>始终声明为 read</b>。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>Permissions</span></div>
+    </section>
+
+    <!-- ============ SLIDE · AGENTIC 10 · SAFE-OUTPUTS CATALOG ============ -->
+    <section class="slide">
+      <div class="shead reveal r1"><span class="kick">// 06 · AGENTIC</span><span class="pg">33 / 37</span></div>
+      <h2 class="reveal r1">safe-outputs · <span class="cy">写操作 handler 全景</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th style="width:18%;">类别</th><th>handler（key）</th></tr></thead>
+          <tbody>
+            <tr class="reveal r2"><td class="k-green"><b>PR 与代码</b></td><td><code>create</code>/<code>update</code>/<code>close-pull-request</code> · <code>merge-pull-request</code>🧪 · <code>approve-workflow-run</code>🧪 · <code>*-review-comment</code>(create/reply/resolve) · <code>add-reviewer</code> · <code>push-to-pull-request-branch</code></td></tr>
+            <tr class="reveal r3"><td><b>标签/指派/评论</b></td><td><code>add-comment</code> · <code>hide-comment</code> · <code>add</code>/<code>remove-labels</code> · <code>assign-milestone</code> · <code>assign-to-agent</code> · <code>assign-to-user</code> · <code>unassign-from-user</code> · <code>set-issue-type</code> · <code>set-issue-field</code></td></tr>
+            <tr class="reveal r4"><td><b>Issue</b></td><td><code>create-issue</code> <span class="muted">（无 safe-outputs 段时自动注入,max 1）</span></td></tr>
+            <tr class="reveal r5"><td><b>项目/发布/资产</b></td><td><code>create-project</code> · <code>update-project</code> · <code>create-project-status-update</code> · <code>update-release</code> · <code>upload-artifact</code> · <code>upload-asset</code></td></tr>
+            <tr class="reveal r6"><td class="k-amber"><b>安全/Agent</b></td><td><code>dispatch-workflow</code> · <code>call-workflow</code> · <code>dispatch-repository</code>🧪 · <code>create-code-scanning-alert</code> · <code>autofix-code-scanning-alert</code> · <code>create-check-run</code> · <code>create-agent-session</code></td></tr>
+            <tr class="reveal r7"><td><b>系统(自动)</b></td><td><code>noop</code> · <code>missing-tool</code> · <code>missing-data</code> · <code>create-issue</code></td></tr>
+            <tr class="reveal r8"><td class="k-cyan"><b>扩展机制</b></td><td><code>jobs:</code> 自定义后处理 job(注册为 MCP 工具)· <code>actions:</code> 把公开 Action 挂成一次性 MCP 工具(SHA 钉)</td></tr>
+          </tbody>
+        </table>
+        <p class="reveal r8 muted" style="margin-top:16px;font-size:21px;">🧪 experimental · 30+ handler 各有 <code>max</code> 上限 + 独立受权 job 执行 → <b class="k-green">最小权限 · 防注入 · 可审计</b>;agent 只读,写在闸门后。</p>
+      </div>
+      <div class="foot"><span>GitHub · Agentic</span><span>safe-outputs</span></div>
+    </section>
+
     <!-- ============ SLIDE · DEMO 1 · OVERALL DESIGN ============ -->
     <section class="slide">
       <div class="shead reveal r1"><span class="kick">// 实战 · DEMO</span><span class="pg">18 / 30</span></div>
